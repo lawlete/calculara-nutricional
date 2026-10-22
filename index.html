@@ -1,0 +1,2502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriSport 88kg Plan — Calculadora Nutricional y Planificador Deportivo</title>
+  <meta name="description" content="Calculadora interactiva de déficit calórico, 4 comidas diarias en Air Fryer y gasto real para 5 disciplinas deportivas. 100% Sin Lactosa, Sin Café y 0% Alcohol." />
+  
+  <!-- Open Graph para vista previa atractiva al compartir el link por WhatsApp -->
+  <meta property="og:title" content="🔥 NutriSport 88kg Plan — Calculadora y Planificador Deportivo" />
+  <meta property="og:description" content="Planificador interactivo de 4 comidas diarias + Especial Air Fryer + 5 Deportes. 100% Sin Lactosa • Sin Café (con Mate) • 0% Alcohol." />
+  <meta property="og:url" content="https://lawlete.github.io/calculara-nutricional/" />
+  <meta property="og:type" content="website" />
+
+  <!-- Fuente Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS vía CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- React 18 + ReactDOM 18 (Producción) + Babel Standalone para ejecutar JSX directamente en el navegador -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #020617;
+      color: #f1f5f9;
+    }
+    @media print {
+      header { position: static !important; }
+      body { background-color: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased selection:bg-emerald-500 selection:text-slate-950">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
+
+    // ============================================================================
+    // SISTEMA DE ICONOS SVG INTEGRADO (100% autónomo para GitHub Pages sin dependencias externas)
+    // ============================================================================
+    const SvgIcon = ({ className = "w-5 h-5", children }) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+      >
+        {children}
+      </svg>
+    );
+
+    const Activity = ({ className }) => (
+      <SvgIcon className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></SvgIcon>
+    );
+    const Flame = ({ className }) => (
+      <SvgIcon className={className}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></SvgIcon>
+    );
+    const Utensils = ({ className }) => (
+      <SvgIcon className={className}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /><path d="M7 2v20" /><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" /></SvgIcon>
+    );
+    const Plus = ({ className }) => (
+      <SvgIcon className={className}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></SvgIcon>
+    );
+    const Trash2 = ({ className }) => (
+      <SvgIcon className={className}><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></SvgIcon>
+    );
+    const RefreshCw = ({ className }) => (
+      <SvgIcon className={className}><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></SvgIcon>
+    );
+    const CheckCircle2 = ({ className }) => (
+      <SvgIcon className={className}><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></SvgIcon>
+    );
+    const Info = ({ className }) => (
+      <SvgIcon className={className}><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></SvgIcon>
+    );
+    const Sliders = ({ className }) => (
+      <SvgIcon className={className}><line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" /><line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" /><line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" /><line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" /></SvgIcon>
+    );
+    const Zap = ({ className }) => (
+      <SvgIcon className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></SvgIcon>
+    );
+    const ShieldCheck = ({ className }) => (
+      <SvgIcon className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></SvgIcon>
+    );
+    const Dumbbell = ({ className }) => (
+      <SvgIcon className={className}><path d="m6.5 6.5 11 11" /><path d="m21 21-1-1" /><path d="m3 3 1 1" /><path d="m18 22 4-4" /><path d="m2 6 4-4" /><path d="m3 10 7-7" /><path d="m14 21 7-7" /></SvgIcon>
+    );
+    const Target = ({ className }) => (
+      <SvgIcon className={className}><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></SvgIcon>
+    );
+    const Wind = ({ className }) => (
+      <SvgIcon className={className}><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2" /><path d="M9.6 4.6A2 2 0 1 1 11 8H2" /><path d="M12.6 19.4A2 2 0 1 0 14 16H2" /></SvgIcon>
+    );
+    const Music = ({ className }) => (
+      <SvgIcon className={className}><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></SvgIcon>
+    );
+    const Trophy = ({ className }) => (
+      <SvgIcon className={className}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></SvgIcon>
+    );
+    const Sparkles = ({ className }) => (
+      <SvgIcon className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /></SvgIcon>
+    );
+    const Sparkle = Sparkles;
+    const HeartPulse = ({ className }) => (
+      <SvgIcon className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" /></SvgIcon>
+    );
+    const PlusCircle = ({ className }) => (
+      <SvgIcon className={className}><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" /></SvgIcon>
+    );
+    const TrendingDown = ({ className }) => (
+      <SvgIcon className={className}><polyline points="23 18 13.5 8.5 8.5 13.5 1 6" /><polyline points="17 18 23 18 23 12" /></SvgIcon>
+    );
+    const Calendar = ({ className }) => (
+      <SvgIcon className={className}><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></SvgIcon>
+    );
+    const ArrowRight = ({ className }) => (
+      <SvgIcon className={className}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></SvgIcon>
+    );
+    const Repeat = ({ className }) => (
+      <SvgIcon className={className}><polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 0 1 4-4h14" /><polyline points="7 23 3 19 7 15" /><path d="M21 13v2a4 4 0 0 1-4 4H3" /></SvgIcon>
+    );
+    const Search = ({ className }) => (
+      <SvgIcon className={className}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></SvgIcon>
+    );
+    const X = ({ className }) => (
+      <SvgIcon className={className}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></SvgIcon>
+    );
+    const ChefHat = ({ className }) => (
+      <SvgIcon className={className}><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z" /><line x1="6" y1="17" x2="18" y2="17" /></SvgIcon>
+    );
+    const Replace = ({ className }) => (
+      <SvgIcon className={className}><path d="M14 4c0-1.1.9-2 2-2" /><path d="M20 2c1.1 0 2 .9 2 2" /><path d="M22 8c0 1.1-.9 2-2 2" /><path d="M16 10c-1.1 0-2-.9-2-2" /><path d="m3 7 3 3 3-3" /><path d="M6 10V5c0-1.7 1.3-3 3-3h1" /><rect width="8" height="8" x="2" y="14" rx="2" /></SvgIcon>
+    );
+    const BookOpen = ({ className }) => (
+      <SvgIcon className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></SvgIcon>
+    );
+    const Printer = ({ className }) => (
+      <SvgIcon className={className}><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></SvgIcon>
+    );
+    const Layers = ({ className }) => (
+      <SvgIcon className={className}><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></SvgIcon>
+    );
+    const Compass = ({ className }) => (
+      <SvgIcon className={className}><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></SvgIcon>
+    );
+    const HelpCircle = ({ className }) => (
+      <SvgIcon className={className}><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></SvgIcon>
+    );
+    const Share2 = ({ className }) => (
+      <SvgIcon className={className}><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></SvgIcon>
+    );
+    const Smartphone = ({ className }) => (
+      <SvgIcon className={className}><rect x="5" y="2" width="14" height="20" rx="2" ry="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></SvgIcon>
+    );
+    const Copy = ({ className }) => (
+      <SvgIcon className={className}><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></SvgIcon>
+    );
+    const Check = ({ className }) => (
+      <SvgIcon className={className}><polyline points="20 6 9 17 4 12" /></SvgIcon>
+    );
+    const MessageSquare = ({ className }) => (
+      <SvgIcon className={className}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></SvgIcon>
+    );
+    const Download = ({ className }) => (
+      <SvgIcon className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></SvgIcon>
+    );
+
+    // ============================================================================
+    // BASE DE DATOS DE ALIMENTOS (100% Sin Lactosa, Sin Café, 0% Alcohol)
+    // ============================================================================
+    const INITIAL_FOOD_DB = [
+      { id: 'mate_amargo', name: 'Mate Amargo Tradicional (Termo)', category: 'desayuno', unit: 'termo', baseAmount: 1, cal: 15, p: 1, c: 3, f: 0, airFryer: false, tag: 'Energizante Natural', keywords: 'mate amargo yerba termo infusion desayuno merienda' },
+      { id: 'mate_cocido', name: 'Mate Cocido en Saquito o Hebras (Sin Azúcar)', category: 'desayuno', unit: 'taza', baseAmount: 1, cal: 5, p: 0.3, c: 1, f: 0, airFryer: false, tag: 'Infusión Clásica', keywords: 'mate cocido taza saquito yerba infusion desayuno merienda' },
+      { id: 'te_verde', name: 'Té Verde / Hierbas Digestivas con Limón', category: 'desayuno', unit: 'taza', baseAmount: 1, cal: 2, p: 0, c: 0.5, f: 0, airFryer: false, tag: 'Antioxidante', keywords: 'te verde hierbas manzanilla tilo cedron infusion' },
+      { id: 'leche_almendras', name: 'Bebida de Almendras Sin Azúcar', category: 'desayuno', unit: 'ml', baseAmount: 200, cal: 26, p: 1, c: 0.6, f: 2.2, airFryer: false, tag: '0% Lactosa', keywords: 'leche almendras vegetal sin lactosa bebida' },
+      { id: 'leche_deslactosada', name: 'Leche Descremada 0% Lactosa (Deslactosada)', category: 'desayuno', unit: 'ml', baseAmount: 200, cal: 70, p: 6.6, c: 9.6, f: 0.6, airFryer: false, tag: 'Deslactosada', keywords: 'leche deslactosada sin lactosa descremada' },
+      { id: 'huevos_revueltos', name: 'Huevos Enteros (Revueltos, Poché o Duros)', category: 'desayuno', unit: 'unid (60g)', baseAmount: 2, cal: 155, p: 13, c: 1.1, f: 11, airFryer: true, tag: 'Proteína Completa', airFryerTip: 'En cazuela apta o molde de silicona a 180°C por 8-10 min.', keywords: 'huevo huevos revueltos duro poche omelette proteina' },
+      { id: 'claras_huevo', name: 'Claras de Huevo Extras (Omelette / Revuelto)', category: 'desayuno', unit: 'unid (35g)', baseAmount: 3, cal: 52, p: 11, c: 0.7, f: 0.2, airFryer: false, tag: '100% Albúmina Magra', keywords: 'huevo claras clara omelette albumina proteina' },
+      { id: 'pan_integral', name: 'Pan Integral de Semillas', category: 'desayuno', unit: 'rebanada (35g)', baseAmount: 2, cal: 175, p: 7, c: 28, f: 3.5, airFryer: true, tag: 'Tostado Air Fryer (180°C 3m)', airFryerTip: '180°C por 3-4 min para un tostado parejo y crocante.', keywords: 'pan integral semillas tostada tostadas carbohidrato' },
+      { id: 'tostadas_arroz', name: 'Tostadas / Galletas de Arroz Integral', category: 'desayuno', unit: 'unid (10g)', baseAmount: 3, cal: 110, p: 2.4, c: 23, f: 0.8, airFryer: false, tag: 'Liviano y Crocante', keywords: 'tostadas arroz galletas merienda desayuno' },
+      { id: 'palta', name: 'Palta (Aguacate) Hass Fresca', category: 'desayuno', unit: 'g', baseAmount: 60, cal: 96, p: 1.2, c: 5, f: 9, airFryer: false, tag: 'Grasa Saludable', keywords: 'palta aguacate grasa saludable desayuno ensalada' },
+      { id: 'jamon_natural', name: 'Jamón Cocido Natural Magro / Lomito', category: 'desayuno', unit: 'g', baseAmount: 60, cal: 66, p: 12.6, c: 0.6, f: 1.4, airFryer: false, tag: 'Alto en Proteína / 0% Lactosa', keywords: 'jamon cocido natural lomito cerdo fiambre magro proteina' },
+      { id: 'avena', name: 'Avena Arrollada Tradicional', category: 'desayuno', unit: 'g', baseAmount: 50, cal: 194, p: 8.5, c: 33, f: 3.5, airFryer: false, tag: 'Energía Sostenida', keywords: 'avena porridge cereal desayuno fibra' },
+      { id: 'frutos_secos', name: 'Mix de Nueces y Almendras Naturales', category: 'desayuno', unit: 'g', baseAmount: 25, cal: 154, p: 4.6, c: 4.2, f: 13.8, airFryer: false, tag: 'Omega 3 + Saciedad', keywords: 'frutos secos nueces almendras castañas mani grasa' },
+      { id: 'banana', name: 'Banana Mediana (Pre-Entreno Tenis/Gym)', category: 'desayuno', unit: 'unid (110g)', baseAmount: 1, cal: 98, p: 1.2, c: 25, f: 0.3, airFryer: false, tag: 'Potasio / Energía', keywords: 'banana fruta potasio tenis pre entreno' },
+      { id: 'manzana', name: 'Manzana Verde o Roja con Cáscara', category: 'desayuno', unit: 'unid (150g)', baseAmount: 1, cal: 78, p: 0.4, c: 21, f: 0.2, airFryer: true, tag: 'Pectina / Saciedad', airFryerTip: 'En gajos con canela a 180°C por 10 min como colación tibia.', keywords: 'manzana fruta verde roja colacion merienda' },
+      { id: 'arandanos', name: 'Arándanos o Frutillas Frescas', category: 'desayuno', unit: 'g', baseAmount: 100, cal: 52, p: 0.7, c: 12, f: 0.3, airFryer: false, tag: 'Antioxidante', keywords: 'arandanos frutillas frutos rojos fruta' },
+      { id: 'pechuga_pollo', name: 'Suprema / Pechuga de Pollo sin Piel', category: 'principal', unit: 'g (crudo)', baseAmount: 230, cal: 253, p: 52.5, c: 0, f: 3.0, airFryer: true, tag: 'Air Fryer (190°C 15m)', airFryerTip: '190°C por 14-16 min (dar vuelta a los 8 min). Marinar con limón, mostaza, ajo y pimentón para máxima jugosidad.', keywords: 'pollo pechuga suprema ave carne blanca magro air fryer' },
+      { id: 'pata_muslo_pollo', name: 'Pata y Muslo de Pollo Deshuesado (Sin Piel)', category: 'principal', unit: 'g (crudo)', baseAmount: 220, cal: 275, p: 44.0, c: 0, f: 9.8, airFryer: true, tag: 'Air Fryer (200°C 18m)', airFryerTip: '200°C por 18-20 min con orégano, limón y provenzal. Corte súper jugoso.', keywords: 'pollo pata muslo deshuesado ave air fryer' },
+      { id: 'brochette_pollo', name: 'Brochettes de Pollo con Morrón y Cebolla', category: 'principal', unit: 'g (crudo)', baseAmount: 240, cal: 260, p: 46.5, c: 6.0, f: 4.2, airFryer: true, tag: 'Air Fryer (195°C 14m)', airFryerTip: '195°C por 14 min girando a mitad de cocción.', keywords: 'pollo brochette pinchos pechuga morron cebolla air fryer' },
+      { id: 'solomillo_cerdo', name: 'Solomillo de Cerdo Magro (Medallones)', category: 'principal', unit: 'g (crudo)', baseAmount: 220, cal: 264, p: 46.2, c: 0, f: 7.7, airFryer: true, tag: 'Air Fryer (200°C 15m)', airFryerTip: '200°C por 14-15 min en medallones gruesos con mostaza, romero y limón.', keywords: 'cerdo solomillo medallones lomo magro carne air fryer' },
+      { id: 'bondiola_magra', name: 'Bondiola de Cerdo (Desgrasada a Cuchillo)', category: 'principal', unit: 'g (crudo)', baseAmount: 180, cal: 288, p: 35, c: 0, f: 16, airFryer: true, tag: 'Air Fryer (195°C 16m)', airFryerTip: '195°C por 16-18 min retirando antes la grasa visible.', keywords: 'cerdo bondiola churrasquito carne air fryer' },
+      { id: 'carré_cerdo', name: 'Carré / Costillitas de Cerdo Magras sin Hueso', category: 'principal', unit: 'g (crudo)', baseAmount: 210, cal: 268, p: 45.0, c: 0, f: 8.5, airFryer: true, tag: 'Air Fryer (195°C 14m)', airFryerTip: '195°C por 14 min con toque de limón y hierbas.', keywords: 'cerdo carre costillita bife magro air fryer' },
+      { id: 'bife_lomo', name: 'Corte Vacuno Magro (Lomo / Bife Angosto / Peceto)', category: 'principal', unit: 'g (crudo)', baseAmount: 210, cal: 283, p: 46.2, c: 0, f: 10, airFryer: true, tag: 'Air Fryer (200°C 12m)', airFryerTip: 'Precalentar Air Fryer a 200°C y cocinar 10-12 min para punto jugoso.', keywords: 'carne vacuna vaca bife lomo peceto cuadril nalga angosto hierro' },
+      { id: 'hamburguesa_casera', name: 'Medallones Caseros de Carne Magra / Roast Beef', category: 'principal', unit: 'g (crudo)', baseAmount: 200, cal: 290, p: 42.0, c: 1.0, f: 12.5, airFryer: true, tag: 'Air Fryer (200°C 11m)', airFryerTip: '200°C por 11-12 min sin agregado de grasa.', keywords: 'carne vacuna hamburguesa medallon picada magra air fryer' },
+      { id: 'merluza', name: 'Filet de Merluza / Pescado Blanco a las Hierbas', category: 'principal', unit: 'g (crudo)', baseAmount: 250, cal: 205, p: 43, c: 0, f: 3, airFryer: true, tag: 'Air Fryer (180°C 12m)', airFryerTip: '180°C por 11-12 min con limón, ajo deshidratado y perejil.', keywords: 'pescado merluza filet blanco mar air fryer' },
+      { id: 'salmon', name: 'Salmón Rosado o Trucha Patagónica', category: 'principal', unit: 'g (crudo)', baseAmount: 180, cal: 340, p: 36, c: 0, f: 21, airFryer: true, tag: 'Air Fryer (190°C 11m)', airFryerTip: '190°C por 10-12 min con piel hacia abajo.', keywords: 'pescado salmon trucha omega 3 air fryer' },
+      { id: 'atun_natural', name: 'Atún al Natural en Lomos (Escurrido)', category: 'principal', unit: 'lata (120g)', baseAmount: 1, cal: 130, p: 29, c: 0, f: 1, airFryer: false, tag: 'Rápido y Magro', keywords: 'atun pescado lata natural proteina rapida' },
+      { id: 'papas_airfryer', name: 'Papas Rústicas en Cubos o Bastones', category: 'guarnicion', unit: 'g (crudo)', baseAmount: 180, cal: 139, p: 3.6, c: 31.5, f: 0.2, airFryer: true, tag: 'Air Fryer (200°C 18m)', airFryerTip: '200°C por 18-20 min agitando el canasto a los 10 min con pimentón y romero.', keywords: 'papa papas rusticas bastones fritas air fryer guarnicion carbohidrato' },
+      { id: 'batata_airfryer', name: 'Batata / Boniato Asado en Cubos', category: 'guarnicion', unit: 'g (crudo)', baseAmount: 170, cal: 146, p: 2.6, c: 34, f: 0.2, airFryer: true, tag: 'Air Fryer (190°C 20m)', airFryerTip: '190°C por 18-20 min en cubos medianos.', keywords: 'batata boniato camote papa dulce air fryer guarnicion' },
+      { id: 'calabaza_asada', name: 'Calabaza / Zapallo Cabutia o Anquito Asado', category: 'guarnicion', unit: 'g (crudo)', baseAmount: 250, cal: 65, p: 2.5, c: 16, f: 0.3, airFryer: true, tag: 'Gran Volumen / Air Fryer', airFryerTip: '195°C por 15-17 min en rodajas o cubos con orégano.', keywords: 'calabaza zapallo cabutia anco verdura vegetal air fryer' },
+      { id: 'vegetales_grillados', name: 'Mix de Zucchini, Morrón, Cebolla y Brócoli', category: 'guarnicion', unit: 'g', baseAmount: 250, cal: 75, p: 5, c: 14, f: 0.6, airFryer: true, tag: 'Air Fryer (200°C 12m)', airFryerTip: '200°C por 10-12 min para que queden al dente y dorados.', keywords: 'vegetales verduras zucchini morron cebolla brocoli asados air fryer' },
+      { id: 'ensalada_completa', name: 'Ensalada Fresca (Rúcula, Tomate, Pepino, Zanahoria)', category: 'guarnicion', unit: 'bowl (250g)', baseAmount: 1, cal: 55, p: 2.2, c: 11, f: 0.4, airFryer: false, tag: 'Fibra y Saciedad', keywords: 'ensalada verdura tomate lechuga rucula zanahoria fresca' },
+      { id: 'arroz_integral', name: 'Arroz Integral o Yamaní (Cocido)', category: 'guarnicion', unit: 'g (cocido)', baseAmount: 140, cal: 156, p: 3.7, c: 32.5, f: 1.3, airFryer: false, tag: 'Energía Compleja', keywords: 'arroz integral yamani grano guarnicion carbohidrato' },
+      { id: 'lentejas', name: 'Lentejas en Ensalada o Guisadas (Cocidas)', category: 'guarnicion', unit: 'g (cocido)', baseAmount: 140, cal: 162, p: 12.6, c: 28, f: 0.6, airFryer: false, tag: 'Hierro + Fibra', keywords: 'lentejas legumbres porotos garbanzos hierro fibra' },
+      { id: 'aceite_oliva', name: 'Aceite de Oliva Virgen Extra (En crudo/Spray)', category: 'guarnicion', unit: 'cdita (5ml)', baseAmount: 1, cal: 44, p: 0, c: 0, f: 5, airFryer: false, tag: 'Cardioprotector', keywords: 'aceite oliva grasa saludable aderezo' }
+    ];
+
+    const INITIAL_ACTIVITIES = [
+      { id: 'gym', name: 'Gimnasio (Fuerza / Musculación)', freqPerWeek: 2.0, durationMin: 60, met: 5.5, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30', icon: 'Dumbbell' },
+      { id: 'tenis', name: 'Tenis (Partido / Peloteo Intenso)', freqPerWeek: 1.5, durationMin: 80, met: 7.3, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', icon: 'Trophy' },
+      { id: 'taichi', name: 'Tai Chi (Práctica Marcial / Fluidez)', freqPerWeek: 1.0, durationMin: 60, met: 3.3, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', icon: 'Wind' },
+      { id: 'ritmo', name: 'Clase de Ritmo / Cardio Coreográfico', freqPerWeek: 1.0, durationMin: 60, met: 5.8, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30', icon: 'Music' },
+      { id: 'arqueria', name: 'Arquería Tradicional (Postura y Tiro)', freqPerWeek: 1.0, durationMin: 60, met: 3.8, color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', icon: 'Target' }
+    ];
+
+    const QUICK_SWAPS_BY_MEAL = {
+      desayuno: [
+        {
+          label: 'Opción 1: Mate Amargo + Revuelto Proteico de Huevos con Palta y Pan Integral',
+          keywords: 'mate amargo huevo huevos revuelto palta pan integral tostadas',
+          items: [
+            { foodId: 'mate_amargo', amount: 1 },
+            { foodId: 'huevos_revueltos', amount: 2 },
+            { foodId: 'pan_integral', amount: 2 },
+            { foodId: 'palta', amount: 50 }
+          ]
+        },
+        {
+          label: 'Opción 2: Mate Cocido + Tostadas con Jamón Natural Magro, Huevo y Manzana',
+          keywords: 'mate cocido jamon huevo pan tostadas manzana',
+          items: [
+            { foodId: 'mate_cocido', amount: 1 },
+            { foodId: 'pan_integral', amount: 2 },
+            { foodId: 'jamon_natural', amount: 60 },
+            { foodId: 'huevos_revueltos', amount: 1 },
+            { foodId: 'manzana', amount: 1 }
+          ]
+        },
+        {
+          label: 'Opción 3: Porridge de Avena con Leche de Almendras, Claras y Arándanos + Mate',
+          keywords: 'mate avena leche almendras claras huevo arandanos',
+          items: [
+            { foodId: 'mate_amargo', amount: 1 },
+            { foodId: 'avena', amount: 50 },
+            { foodId: 'leche_almendras', amount: 200 },
+            { foodId: 'claras_huevo', amount: 3 },
+            { foodId: 'arandanos', amount: 80 }
+          ]
+        }
+      ],
+      almuerzo: [
+        {
+          label: 'Opción 1 (Pollo): Suprema de Pollo en Air Fryer + Papas Rústicas y Ensalada',
+          keywords: 'pollo suprema pechuga papas rusticas air fryer ensalada',
+          items: [
+            { foodId: 'pechuga_pollo', amount: 230 },
+            { foodId: 'papas_airfryer', amount: 180 },
+            { foodId: 'ensalada_completa', amount: 1 },
+            { foodId: 'aceite_oliva', amount: 1 }
+          ]
+        },
+        {
+          label: 'Opción 2 (Cerdo): Solomillo de Cerdo Magro + Papas Rústicas Air Fryer',
+          keywords: 'cerdo solomillo papas rusticas air fryer ensalada',
+          items: [
+            { foodId: 'solomillo_cerdo', amount: 230 },
+            { foodId: 'papas_airfryer', amount: 180 },
+            { foodId: 'ensalada_completa', amount: 1 },
+            { foodId: 'aceite_oliva', amount: 1 }
+          ]
+        },
+        {
+          label: 'Opción 3 (Vacuna): Bife de Lomo Magro Grillado + Batatas Asadas en Air Fryer',
+          keywords: 'carne vacuna bife lomo batata boniato air fryer ensalada',
+          items: [
+            { foodId: 'bife_lomo', amount: 210 },
+            { foodId: 'batata_airfryer', amount: 160 },
+            { foodId: 'ensalada_completa', amount: 1 },
+            { foodId: 'aceite_oliva', amount: 1 }
+          ]
+        },
+        {
+          label: 'Opción 4 (Pollo Jugoso): Pata Muslo sin Piel en Air Fryer + Arroz Integral y Vegetales',
+          keywords: 'pollo pata muslo arroz integral vegetales air fryer',
+          items: [
+            { foodId: 'pata_muslo_pollo', amount: 220 },
+            { foodId: 'arroz_integral', amount: 130 },
+            { foodId: 'vegetales_grillados', amount: 200 }
+          ]
+        }
+      ],
+      merienda: [
+        {
+          label: 'Opción 1: Mate de la Tarde + Tostadas de Arroz con Jamón Magro y Nueces',
+          keywords: 'mate amargo tostadas arroz jamon frutos secos nueces',
+          items: [
+            { foodId: 'mate_amargo', amount: 1 },
+            { foodId: 'tostadas_arroz', amount: 3 },
+            { foodId: 'jamon_natural', amount: 60 },
+            { foodId: 'frutos_secos', amount: 20 }
+          ]
+        },
+        {
+          label: 'Opción 2: Pre-Entreno Tenis/Gym (Banana + Huevos Revueltos + Té Verde)',
+          keywords: 'te verde banana huevo huevos tostadas arroz tenis gym',
+          items: [
+            { foodId: 'te_verde', amount: 1 },
+            { foodId: 'banana', amount: 1 },
+            { foodId: 'huevos_revueltos', amount: 2 },
+            { foodId: 'tostadas_arroz', amount: 2 }
+          ]
+        },
+        {
+          label: 'Opción 3: Liviana Saciante (Mate Cocido + Manzana + Frutos Secos + Claras)',
+          keywords: 'mate cocido manzana frutos secos claras huevo',
+          items: [
+            { foodId: 'mate_cocido', amount: 1 },
+            { foodId: 'manzana', amount: 1 },
+            { foodId: 'frutos_secos', amount: 25 },
+            { foodId: 'claras_huevo', amount: 3 }
+          ]
+        }
+      ],
+      cena: [
+        {
+          label: 'Opción 1 (Pollo): Suprema de Pollo en Air Fryer + Calabaza y Vegetales Asados',
+          keywords: 'pollo suprema pechuga calabaza zapallo vegetales air fryer',
+          items: [
+            { foodId: 'pechuga_pollo', amount: 230 },
+            { foodId: 'calabaza_asada', amount: 250 },
+            { foodId: 'vegetales_grillados', amount: 250 },
+            { foodId: 'aceite_oliva', amount: 1 }
+          ]
+        },
+        {
+          label: 'Opción 2 (Pescado): Filet de Merluza en Air Fryer + Vegetales Grillados y Palta',
+          keywords: 'pescado merluza vegetales palta air fryer',
+          items: [
+            { foodId: 'merluza', amount: 260 },
+            { foodId: 'vegetales_grillados', amount: 300 },
+            { foodId: 'palta', amount: 60 },
+            { foodId: 'aceite_oliva', amount: 1 }
+          ]
+        },
+        {
+          label: 'Opción 3 (Cerdo): Medallones de Solomillo de Cerdo + Ensalada Completa y Calabaza',
+          keywords: 'cerdo solomillo calabaza ensalada air fryer',
+          items: [
+            { foodId: 'solomillo_cerdo', amount: 220 },
+            { foodId: 'calabaza_asada', amount: 250 },
+            { foodId: 'ensalada_completa', amount: 1 },
+            { foodId: 'aceite_oliva', amount: 1 }
+          ]
+        },
+        {
+          label: 'Opción 4 (Atún/Huevo): Ensalada Tibia de Atún al Natural, Huevos y Papas Air Fryer',
+          keywords: 'atun pescado huevo huevos papa papas air fryer ensalada',
+          items: [
+            { foodId: 'atun_natural', amount: 1.5 },
+            { foodId: 'huevos_revueltos', amount: 2 },
+            { foodId: 'papas_airfryer', amount: 150 },
+            { foodId: 'ensalada_completa', amount: 1 }
+          ]
+        }
+      ]
+    };
+
+    const PRESET_MEALS = {
+      promedio: {
+        name: 'Día Equilibrado (Air Fryer + Mate)',
+        items: [
+          { meal: 'desayuno', foodId: 'mate_amargo', amount: 1 },
+          { meal: 'desayuno', foodId: 'huevos_revueltos', amount: 2 },
+          { meal: 'desayuno', foodId: 'pan_integral', amount: 2 },
+          { meal: 'desayuno', foodId: 'palta', amount: 50 },
+          { meal: 'almuerzo', foodId: 'pechuga_pollo', amount: 230 },
+          { meal: 'almuerzo', foodId: 'papas_airfryer', amount: 180 },
+          { meal: 'almuerzo', foodId: 'ensalada_completa', amount: 1 },
+          { meal: 'almuerzo', foodId: 'aceite_oliva', amount: 1 },
+          { meal: 'merienda', foodId: 'mate_amargo', amount: 1 },
+          { meal: 'merienda', foodId: 'tostadas_arroz', amount: 3 },
+          { meal: 'merienda', foodId: 'jamon_natural', amount: 60 },
+          { meal: 'merienda', foodId: 'frutos_secos', amount: 20 },
+          { meal: 'cena', foodId: 'solomillo_cerdo', amount: 220 },
+          { meal: 'cena', foodId: 'vegetales_grillados', amount: 250 },
+          { meal: 'cena', foodId: 'calabaza_asada', amount: 250 },
+          { meal: 'cena', foodId: 'aceite_oliva', amount: 1 }
+        ]
+      },
+      alto_gasto: {
+        name: 'Día de Tenis o Gimnasio (Recuperación Muscular)',
+        items: [
+          { meal: 'desayuno', foodId: 'mate_amargo', amount: 1 },
+          { meal: 'desayuno', foodId: 'huevos_revueltos', amount: 2 },
+          { meal: 'desayuno', foodId: 'avena', amount: 50 },
+          { meal: 'desayuno', foodId: 'leche_almendras', amount: 200 },
+          { meal: 'desayuno', foodId: 'arandanos', amount: 80 },
+          { meal: 'almuerzo', foodId: 'bife_lomo', amount: 220 },
+          { meal: 'almuerzo', foodId: 'papas_airfryer', amount: 200 },
+          { meal: 'almuerzo', foodId: 'ensalada_completa', amount: 1 },
+          { meal: 'almuerzo', foodId: 'aceite_oliva', amount: 1 },
+          { meal: 'merienda', foodId: 'te_verde', amount: 1 },
+          { meal: 'merienda', foodId: 'banana', amount: 1 },
+          { meal: 'merienda', foodId: 'pan_integral', amount: 2 },
+          { meal: 'merienda', foodId: 'jamon_natural', amount: 70 },
+          { meal: 'cena', foodId: 'pechuga_pollo', amount: 230 },
+          { meal: 'cena', foodId: 'batata_airfryer', amount: 160 },
+          { meal: 'cena', foodId: 'vegetales_grillados', amount: 250 }
+        ]
+      },
+      descanso_moderado: {
+        name: 'Día Tai Chi / Arquería / Descanso (Low-Carb Saciante)',
+        items: [
+          { meal: 'desayuno', foodId: 'mate_amargo', amount: 1 },
+          { meal: 'desayuno', foodId: 'huevos_revueltos', amount: 3 },
+          { meal: 'desayuno', foodId: 'palta', amount: 60 },
+          { meal: 'desayuno', foodId: 'tostadas_arroz', amount: 2 },
+          { meal: 'almuerzo', foodId: 'pechuga_pollo', amount: 240 },
+          { meal: 'almuerzo', foodId: 'calabaza_asada', amount: 250 },
+          { meal: 'almuerzo', foodId: 'ensalada_completa', amount: 1 },
+          { meal: 'almuerzo', foodId: 'aceite_oliva', amount: 1.5 },
+          { meal: 'merienda', foodId: 'mate_cocido', amount: 1 },
+          { meal: 'merienda', foodId: 'jamon_natural', amount: 60 },
+          { meal: 'merienda', foodId: 'frutos_secos', amount: 25 },
+          { meal: 'merienda', foodId: 'manzana', amount: 1 },
+          { meal: 'cena', foodId: 'merluza', amount: 260 },
+          { meal: 'cena', foodId: 'vegetales_grillados', amount: 300 },
+          { meal: 'cena', foodId: 'aceite_oliva', amount: 1 }
+        ]
+      }
+    };
+
+    const MEAL_SECTIONS = [
+      { id: 'desayuno', label: '1. Desayuno + Mate Matutino', shortLabel: 'Desayuno', time: '07:30 - 09:00', icon: '☀️' },
+      { id: 'almuerzo', label: '2. Almuerzo Principal (Air Fryer)', shortLabel: 'Almuerzo', time: '12:30 - 14:00', icon: '🍽️' },
+      { id: 'merienda', label: '3. Merienda / Pre-Práctica', shortLabel: 'Merienda', time: '17:00 - 18:30', icon: '🧉' },
+      { id: 'cena', label: '4. Cena Reparadora Liviana', shortLabel: 'Cena', time: '20:30 - 22:00', icon: '🌙' }
+    ];
+
+    const QUICK_KEYWORD_CHIPS = [
+      { label: '🍗 Pollo', query: 'pollo' },
+      { label: '🥩 Cerdo', query: 'cerdo' },
+      { label: '🐄 Vacuna', query: 'vacuna' },
+      { label: '🐟 Pescado/Atún', query: 'pescado' },
+      { label: '🥔 Papa/Batata', query: 'papa' },
+      { label: '🥚 Huevo', query: 'huevo' },
+      { label: '🧉 Mate', query: 'mate' }
+    ];
+
+    const normalizeText = (str = '') =>
+      str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    const AIR_FRYER_GUIDE_TABLE = [
+      { cut: 'Suprema / Pechuga de Pollo sin Piel (230g)', temp: '190 °C', time: '14 - 16 min', action: 'Dar vuelta a los 8 min. Marinar con limón, mostaza y pimentón.' },
+      { cut: 'Pata y Muslo Deshuesado sin Piel (220g)', temp: '200 °C', time: '18 - 20 min', action: 'Condimentar con orégano, ajo y limón. Corte de máxima jugosidad.' },
+      { cut: 'Solomillo de Cerdo en Medallones (220g)', temp: '200 °C', time: '14 - 15 min', action: 'Medallones de 2.5 cm con toque de mostaza, romero y pimienta.' },
+      { cut: 'Bife de Lomo / Angosto Vacuno Magro (210g)', temp: '200 °C', time: '10 - 12 min', action: 'Precalentar 3 min antes para sellar por fuera y mantener jugoso.' },
+      { cut: 'Filet de Merluza / Pescado Blanco (250g)', temp: '180 °C', time: '11 - 12 min', action: 'Rociar con limón, perejil y ajo deshidratado. No requiere dar vuelta.' },
+      { cut: 'Papas Rústicas o Batatas en Cubos (180g)', temp: '200 °C', time: '18 - 20 min', action: 'Agitar el canasto a los 10 min con 1 cdita de oliva en spray y romero.' },
+      { cut: 'Mix de Zucchini, Morrón, Cebolla y Brócoli', temp: '200 °C', time: '10 - 12 min', action: 'Corte parejo para que queden dorados por fuera y al dente.' }
+    ];
+
+    function App() {
+      const [viewMode, setViewMode] = useState('combined');
+      const [highlightedSection, setHighlightedSection] = useState(null);
+
+      const [flyerTheme, setFlyerTheme] = useState('emerald');
+      const [flyerFormat, setFlyerFormat] = useState('story');
+      const [selectedCaptionIdx, setSelectedCaptionIdx] = useState(0);
+      const [copiedCaption, setCopiedCaption] = useState(false);
+      const [isDownloadingFlyer, setIsDownloadingFlyer] = useState(false);
+
+      const [age, setAge] = useState(59);
+      const [weight, setWeight] = useState(88);
+      const [targetWeight, setTargetWeight] = useState(78);
+      const [height, setHeight] = useState(169);
+      const [neatFactor] = useState(1.25);
+      const [deficitTarget, setDeficitTarget] = useState(500);
+
+      const [proteinBasis, setProteinBasis] = useState('target_weight');
+      const [proteinMultiplier, setProteinMultiplier] = useState(2.0);
+      const [dayMode, setDayMode] = useState('promedio');
+
+      const [activities, setActivities] = useState(INITIAL_ACTIVITIES);
+      const [foodDb, setFoodDb] = useState(INITIAL_FOOD_DB);
+      const [dailyLog, setDailyLog] = useState(() => {
+        return PRESET_MEALS.promedio.items.map((item, idx) => ({
+          ...item,
+          uid: `init-${idx}-${Date.now()}`
+        }));
+      });
+
+      const [selectedMealToAdd, setSelectedMealToAdd] = useState('almuerzo');
+      const [selectedFoodIdToAdd, setSelectedFoodIdToAdd] = useState('pechuga_pollo');
+      const [customAmountToAdd, setCustomAmountToAdd] = useState(230);
+      const [onlyAirFryerFilter, setOnlyAirFryerFilter] = useState(false);
+      const [plannerKeyword, setPlannerKeyword] = useState('');
+
+      const [mealCardSearch, setMealCardSearch] = useState({
+        desayuno: '',
+        almuerzo: '',
+        merienda: '',
+        cena: ''
+      });
+
+      const [actionFeedback, setActionFeedback] = useState(null);
+      const [showCustomFoodModal, setShowCustomFoodModal] = useState(false);
+      const [newCustomFood, setNewCustomFood] = useState({
+        name: '', unit: 'g', baseAmount: 100, cal: 150, p: 15, c: 10, f: 5, airFryer: false
+      });
+
+      const triggerFeedback = (msg) => {
+        setActionFeedback(msg);
+        setTimeout(() => {
+          setActionFeedback(prev => (prev === msg ? null : prev));
+        }, 3200);
+      };
+
+      const handleJumpToSection = (sectionId, optionalAction) => {
+        if (viewMode === 'manual' || viewMode === 'flyer') {
+          setViewMode('combined');
+        }
+        if (optionalAction) {
+          optionalAction();
+        }
+        setHighlightedSection(sectionId);
+        setTimeout(() => {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 120);
+        setTimeout(() => {
+          setHighlightedSection(prev => (prev === sectionId ? null : prev));
+        }, 2800);
+      };
+
+      useEffect(() => {
+        const food = foodDb.find(f => f.id === selectedFoodIdToAdd);
+        if (food) {
+          setCustomAmountToAdd(food.baseAmount);
+        }
+      }, [selectedFoodIdToAdd, foodDb]);
+
+      const filteredFoodsForSelector = useMemo(() => {
+        const q = normalizeText(plannerKeyword.trim());
+        return foodDb.filter(f => {
+          if (onlyAirFryerFilter && !f.airFryer) return false;
+          if (!q) return true;
+          const haystack = normalizeText(`${f.name} ${f.tag || ''} ${f.keywords || ''} ${f.category || ''}`);
+          return haystack.includes(q);
+        });
+      }, [foodDb, plannerKeyword, onlyAirFryerFilter]);
+
+      useEffect(() => {
+        if (filteredFoodsForSelector.length > 0) {
+          const exists = filteredFoodsForSelector.some(f => f.id === selectedFoodIdToAdd);
+          if (!exists) {
+            setSelectedFoodIdToAdd(filteredFoodsForSelector[0].id);
+          }
+        }
+      }, [filteredFoodsForSelector, selectedFoodIdToAdd]);
+
+      const matchingCompleteDishesInPlanner = useMemo(() => {
+        const q = normalizeText(plannerKeyword.trim());
+        if (!q) return [];
+        const results = [];
+        MEAL_SECTIONS.forEach(sec => {
+          const swaps = QUICK_SWAPS_BY_MEAL[sec.id] || [];
+          swaps.forEach(swap => {
+            const hay = normalizeText(`${swap.label} ${swap.keywords || ''}`);
+            if (hay.includes(q)) {
+              results.push({
+                mealId: sec.id,
+                mealLabel: sec.shortLabel,
+                mealIcon: sec.icon,
+                label: swap.label,
+                items: swap.items
+              });
+            }
+          });
+        });
+        return results;
+      }, [plannerKeyword]);
+
+      const energyMetrics = useMemo(() => {
+        const bmr = Math.round(10 * weight + 6.25 * height - 5 * age + 5);
+        const neatKcal = Math.round(bmr * (neatFactor - 1));
+
+        const activitiesBreakdown = activities.map(act => {
+          const kcalPerSession = Math.round(((act.met * 3.5 * weight) / 200) * act.durationMin);
+          const kcalPerWeek = Math.round(kcalPerSession * act.freqPerWeek);
+          return { ...act, kcalPerSession, kcalPerWeek };
+        });
+
+        const totalWeeklySportKcal = activitiesBreakdown.reduce((acc, item) => acc + item.kcalPerWeek, 0);
+        const avgDailySportKcal = Math.round(totalWeeklySportKcal / 7);
+
+        let activeSportKcalForToday = avgDailySportKcal;
+        let activeModeLabel = 'Promedio Semanal (6.5 sesiones)';
+
+        if (dayMode === 'tenis') {
+          const tenisObj = activitiesBreakdown.find(a => a.id === 'tenis');
+          activeSportKcalForToday = tenisObj ? tenisObj.kcalPerSession : avgDailySportKcal;
+          activeModeLabel = 'Día de Partido / Entreno de Tenis';
+        } else if (dayMode === 'gym') {
+          const gymObj = activitiesBreakdown.find(a => a.id === 'gym');
+          activeSportKcalForToday = gymObj ? gymObj.kcalPerSession : avgDailySportKcal;
+          activeModeLabel = 'Día de Gimnasio (Fuerza)';
+        } else if (dayMode === 'taichi_ritmo_arq') {
+          const tc = activitiesBreakdown.find(a => a.id === 'taichi')?.kcalPerSession || 250;
+          const ar = activitiesBreakdown.find(a => a.id === 'arqueria')?.kcalPerSession || 280;
+          activeSportKcalForToday = Math.round((tc + ar) / 2);
+          activeModeLabel = 'Día de Tai Chi / Ritmo / Arquería';
+        } else if (dayMode === 'descanso') {
+          activeSportKcalForToday = 0;
+          activeModeLabel = 'Día de Descanso Total';
+        }
+
+        const tdee = bmr + neatKcal + activeSportKcalForToday;
+        const targetCalories = Math.max(1550, tdee - deficitTarget);
+        const actualDeficit = tdee - targetCalories;
+
+        const referenceWeightForProtein = proteinBasis === 'target_weight' ? targetWeight : weight;
+        const targetProteinG = Math.round(referenceWeightForProtein * proteinMultiplier);
+        const proteinCalories = targetProteinG * 4;
+
+        const targetFatG = Math.round(Math.max(55, (targetCalories * 0.27) / 9));
+        const fatCalories = targetFatG * 9;
+
+        const remainingCalForCarbs = Math.max(400, targetCalories - proteinCalories - fatCalories);
+        const targetCarbsG = Math.round(remainingCalForCarbs / 4);
+
+        const heightM = height / 100;
+        const currentBmi = (weight / (heightM * heightM)).toFixed(1);
+        const targetBmi = (targetWeight / (heightM * heightM)).toFixed(1);
+
+        const estimatedWeeklyLossKg = ((actualDeficit * 7) / 7700).toFixed(2);
+        const kgToLose = Math.max(0, +(weight - targetWeight).toFixed(1));
+        const weeksToGoal = kgToLose > 0 && parseFloat(estimatedWeeklyLossKg) > 0
+          ? Math.ceil(kgToLose / parseFloat(estimatedWeeklyLossKg))
+          : 0;
+
+        return {
+          bmr, neatKcal, activitiesBreakdown, totalWeeklySportKcal, avgDailySportKcal,
+          activeSportKcalForToday, activeModeLabel, tdee, targetCalories, actualDeficit,
+          referenceWeightForProtein, targetProteinG, targetFatG, targetCarbsG,
+          currentBmi, targetBmi, estimatedWeeklyLossKg, kgToLose, weeksToGoal
+        };
+      }, [age, weight, targetWeight, height, neatFactor, deficitTarget, proteinBasis, proteinMultiplier, activities, dayMode]);
+
+      const consumedTotals = useMemo(() => {
+        let cal = 0, p = 0, c = 0, f = 0;
+        const byMeal = { desayuno: 0, almuerzo: 0, merienda: 0, cena: 0 };
+
+        const enrichedItems = dailyLog.map(entry => {
+          const food = foodDb.find(item => item.id === entry.foodId) || foodDb[0];
+          const ratio = (parseFloat(entry.amount) || 0) / (food.baseAmount || 1);
+          const itemCal = Math.round(food.cal * ratio);
+          const itemP = +(food.p * ratio).toFixed(1);
+          const itemC = +(food.c * ratio).toFixed(1);
+          const itemF = +(food.f * ratio).toFixed(1);
+
+          cal += itemCal;
+          p += itemP;
+          c += itemC;
+          f += itemF;
+          if (byMeal[entry.meal] !== undefined) {
+            byMeal[entry.meal] += itemCal;
+          }
+
+          return { ...entry, food, itemCal, itemP, itemC, itemF };
+        });
+
+        return {
+          cal: Math.round(cal),
+          p: Math.round(p),
+          c: Math.round(c),
+          f: Math.round(f),
+          byMeal,
+          enrichedItems
+        };
+      }, [dailyLog, foodDb]);
+
+      const calDiff = consumedTotals.cal - energyMetrics.targetCalories;
+      const isCalorieOnTrack = Math.abs(calDiff) <= 110;
+      const isProteinMet = consumedTotals.p >= energyMetrics.targetProteinG * 0.92;
+
+      const currentlySelectedFoodObj = useMemo(
+        () => foodDb.find(f => f.id === selectedFoodIdToAdd) || null,
+        [foodDb, selectedFoodIdToAdd]
+      );
+
+      const handleActivityChange = (id, field, value) => {
+        const num = parseFloat(value) || 0;
+        setActivities(prev =>
+          prev.map(act => (act.id === id ? { ...act, [field]: num } : act))
+        );
+      };
+
+      const handleAddFoodToMeal = (mealOverride, foodIdOverride, amountOverride) => {
+        const targetMeal = mealOverride || selectedMealToAdd;
+        const targetFoodId = foodIdOverride || selectedFoodIdToAdd;
+        const foodObj = foodDb.find(f => f.id === targetFoodId);
+        if (!foodObj) return;
+
+        const finalAmount = amountOverride !== undefined
+          ? parseFloat(amountOverride) || foodObj.baseAmount
+          : parseFloat(customAmountToAdd) || foodObj.baseAmount;
+
+        const newEntry = {
+          uid: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          meal: targetMeal,
+          foodId: targetFoodId,
+          amount: finalAmount
+        };
+
+        setDailyLog(prev => [...prev, newEntry]);
+        const mealName = MEAL_SECTIONS.find(m => m.id === targetMeal)?.shortLabel || targetMeal;
+        triggerFeedback(`✅ Sumado: ${foodObj.name} (${finalAmount} ${foodObj.unit}) en ${mealName}`);
+      };
+
+      const handleReplaceMainInMeal = (mealId, newFoodId, newAmount) => {
+        const newFood = foodDb.find(f => f.id === newFoodId);
+        if (!newFood) return;
+        const finalAmount = parseFloat(newAmount) || newFood.baseAmount;
+
+        setDailyLog(prev => {
+          const mealItems = prev.filter(item => item.meal === mealId);
+          const itemToReplace = mealItems.find(item => {
+            const f = foodDb.find(dbItem => dbItem.id === item.foodId);
+            return f && f.category === newFood.category;
+          }) || mealItems[0];
+
+          if (!itemToReplace) {
+            return [...prev, { uid: `rep-${Date.now()}`, meal: mealId, foodId: newFoodId, amount: finalAmount }];
+          }
+
+          return prev.map(item =>
+            item.uid === itemToReplace.uid ? { ...item, foodId: newFoodId, amount: finalAmount } : item
+          );
+        });
+
+        const mealName = MEAL_SECTIONS.find(m => m.id === mealId)?.shortLabel || mealId;
+        triggerFeedback(`🔄 Reemplazado por ${newFood.name} (${finalAmount} ${newFood.unit}) en ${mealName}`);
+      };
+
+      const handleSwapSingleMeal = (mealId, newItemsList, dishLabel = '') => {
+        setDailyLog(prev => {
+          const otherMeals = prev.filter(item => item.meal !== mealId);
+          const added = newItemsList.map((it, idx) => ({
+            uid: `swap-${mealId}-${idx}-${Date.now()}`,
+            meal: mealId,
+            foodId: it.foodId,
+            amount: it.amount
+          }));
+          return [...otherMeals, ...added];
+        });
+        const mealName = MEAL_SECTIONS.find(m => m.id === mealId)?.shortLabel || mealId;
+        triggerFeedback(`🍽️ Plato actualizado en ${mealName}${dishLabel ? `: ${dishLabel}` : ''}`);
+      };
+
+      const handleScaleSingleMeal = (mealId, factor) => {
+        setDailyLog(prev =>
+          prev.map(item => {
+            if (item.meal !== mealId) return item;
+            const food = foodDb.find(f => f.id === item.foodId);
+            const isGramOrMl = food && (food.unit.includes('g') || food.unit.includes('ml'));
+            const rawNew = item.amount * factor;
+            const rounded = isGramOrMl
+              ? Math.max(10, Math.round(rawNew / 10) * 10)
+              : Math.max(0.5, Math.round(rawNew * 2) / 2);
+            return { ...item, amount: rounded };
+          })
+        );
+        const mealName = MEAL_SECTIONS.find(m => m.id === mealId)?.shortLabel || mealId;
+        triggerFeedback(`⚖️ Porciones ajustadas (${factor > 1 ? '+15%' : '-15%'}) en ${mealName}`);
+      };
+
+      const handleUpdateAmount = (uid, newVal) => {
+        const val = parseFloat(newVal);
+        setDailyLog(prev =>
+          prev.map(item => (item.uid === uid ? { ...item, amount: isNaN(val) ? 0 : val } : item))
+        );
+      };
+
+      const handleRemoveItem = (uid) => {
+        setDailyLog(prev => prev.filter(item => item.uid !== uid));
+      };
+
+      const handleLoadPreset = (presetKey) => {
+        const preset = PRESET_MEALS[presetKey];
+        if (!preset) return;
+        setDailyLog(
+          preset.items.map((item, idx) => ({
+            ...item,
+            uid: `preset-${presetKey}-${idx}-${Date.now()}`
+          }))
+        );
+        triggerFeedback(`✨ Cargado menú completo: ${preset.name}`);
+      };
+
+      const handleAutoCalibrateCurrentMenu = () => {
+        if (consumedTotals.cal <= 0) return;
+        const factor = energyMetrics.targetCalories / consumedTotals.cal;
+
+        setDailyLog(prev =>
+          prev.map(item => {
+            const food = foodDb.find(f => f.id === item.foodId);
+            if (!food || food.cal <= 15) return item;
+
+            const isGramOrMl = food.unit.includes('g') || food.unit.includes('ml');
+            const scaled = item.amount * factor;
+            const newAmount = isGramOrMl
+              ? Math.max(20, Math.round(scaled / 10) * 10)
+              : Math.max(0.5, Math.round(scaled * 2) / 2);
+
+            return { ...item, amount: newAmount };
+          })
+        );
+        triggerFeedback(`⚖️ Porciones auto-calibradas para clavar tu meta de ${energyMetrics.targetCalories} kcal`);
+      };
+
+      const handleCreateCustomFood = (e) => {
+        e.preventDefault();
+        if (!newCustomFood.name.trim()) return;
+        const customId = `custom_${Date.now()}`;
+        const created = {
+          id: customId,
+          name: newCustomFood.name.trim(),
+          category: 'principal',
+          unit: newCustomFood.unit || 'g',
+          baseAmount: parseFloat(newCustomFood.baseAmount) || 100,
+          cal: parseFloat(newCustomFood.cal) || 100,
+          p: parseFloat(newCustomFood.p) || 0,
+          c: parseFloat(newCustomFood.c) || 0,
+          f: parseFloat(newCustomFood.f) || 0,
+          airFryer: Boolean(newCustomFood.airFryer),
+          tag: newCustomFood.airFryer ? 'Air Fryer Personalizado' : 'Personalizado 0% Lactosa',
+          keywords: normalizeText(newCustomFood.name)
+        };
+
+        setFoodDb(prev => [created, ...prev]);
+        setSelectedFoodIdToAdd(customId);
+        setCustomAmountToAdd(created.baseAmount);
+        setShowCustomFoodModal(false);
+        setNewCustomFood({ name: '', unit: 'g', baseAmount: 100, cal: 150, p: 15, c: 10, f: 5, airFryer: false });
+        triggerFeedback(`✅ Alimento creado y seleccionado: ${created.name}`);
+      };
+
+      const renderActivityIcon = (iconName, className = "w-5 h-5") => {
+        switch (iconName) {
+          case 'Dumbbell': return <Dumbbell className={className} />;
+          case 'Trophy': return <Trophy className={className} />;
+          case 'Wind': return <Wind className={className} />;
+          case 'Music': return <Music className={className} />;
+          case 'Target': return <Target className={className} />;
+          default: return <Activity className={className} />;
+        }
+      };
+
+      const WHATSAPP_CAPTIONS = [
+        {
+          title: 'Opción 1: Directa y Deportiva (Ideal Grupos de Tenis / Gym / Club)',
+          text: `🔥 *¡Les comparto NutriSport 88kg Plan!* 🎾🏋️‍♂️🏹\n\nUna calculadora nutricional y planificador interactivo de *4 comidas diarias* diseñado a medida para perder peso protegiendo la masa muscular.\n\n✅ *Cálculo real para 5 disciplinas:* Gimnasio, Tenis, Tai Chi, Ritmo y Arquería.\n🔥 *Especial Air Fryer:* Tiempos y temperaturas exactas para pollo, cerdo, carnes magras y papas rústicas.\n🔍 *Buscador inteligente por palabra clave:* Cambiá platos o reemplazá proteínas con 1 clic.\n🛡️ *100% Sin Lactosa • 🧉 Sin Café (con Mate) • 💧 0% Alcohol.*\n\n¡Pruébenla gratis acá y armen su menú del día en segundos! 👇\nhttps://lawlete.github.io/calculara-nutricional/`
+        },
+        {
+          title: 'Opción 2: Corta y Visual (Ideal para Estado de WhatsApp)',
+          text: `🚀 *NutriSport Plan: Déficit Calórico Inteligente + Cocina en Air Fryer* 🔥\n\n📊 Calibrá tus 4 comidas del día según qué deporte entrenás hoy (Tenis, Gym, Tai Chi, Ritmo o Arquería).\n🥩 Buscador rápido por ingrediente ("pollo", "cerdo", "papa", "huevo", "mate").\n🛡️ 100% Libre de Lactosa • Sin Café • 0% Alcohol.\n\n📲 *Entrá a probarla acá:*\nhttps://lawlete.github.io/calculara-nutricional/`
+        },
+        {
+          title: 'Opción 3: Enfoque Salud y Cocina Práctica (Familiar / Amigos)',
+          text: `🧉 *¿Querés comer sano, bajar de peso sin pasar hambre y aprovechar la Air Fryer al máximo?* 🔥\n\nEstoy usando *NutriSport Plan*, una app interactiva que:\n1️⃣ Calcula tus calorías y proteínas exactas por día.\n2️⃣ Arma tus *4 comidas diarias* 100% sin lactosa, sin café (¡con buen mate!) y 0% alcohol.\n3️⃣ Trae buscador por palabra clave y botón de *Auto-Calibración de porciones*.\n4️⃣ Incluye Manual Paso a Paso y tabla de cocción en Freidora de Aire.\n\n¡Te comparto el link directo para que la chusmees! 👇\nhttps://lawlete.github.io/calculara-nutricional/`
+        }
+      ];
+
+      const handleCopyWhatsappText = (textToCopy) => {
+        const textArea = document.createElement('textarea');
+        textArea.value = textToCopy;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setCopiedCaption(true);
+          triggerFeedback('📲 ¡Texto copiado al portapapeles! Listo para pegar en WhatsApp.');
+          setTimeout(() => setCopiedCaption(false), 3000);
+        } catch (err) {
+          triggerFeedback('Seleccioná el texto manualmente para copiarlo.');
+        }
+        document.body.removeChild(textArea);
+      };
+
+      const handleDownloadFlyerImage = () => {
+        setIsDownloadingFlyer(true);
+        try {
+          const canvas = document.createElement('canvas');
+          const W = 1080;
+          const H = flyerFormat === 'story' ? 1920 : 1440;
+          canvas.width = W;
+          canvas.height = H;
+          const ctx = canvas.getContext('2d');
+
+          const drawRoundRect = (x, y, w, h, r, fill, stroke, lineWidth = 2) => {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+            if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lineWidth; ctx.stroke(); }
+          };
+
+          const themes = {
+            emerald: { bgMid: '#064e3b', accent: '#10b981', accentLight: '#6ee7b7', border: 'rgba(52, 211, 153, 0.55)' },
+            amber: { bgMid: '#4c0519', accent: '#f59e0b', accentLight: '#fcd34d', border: 'rgba(251, 191, 36, 0.55)' },
+            indigo: { bgMid: '#1e1b4b', accent: '#6366f1', accentLight: '#a5b4fc', border: 'rgba(129, 140, 248, 0.55)' }
+          };
+          const t = themes[flyerTheme] || themes.emerald;
+
+          const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+          bgGrad.addColorStop(0, '#0f172a');
+          bgGrad.addColorStop(0.5, t.bgMid);
+          bgGrad.addColorStop(1, '#020617');
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, W, H);
+
+          drawRoundRect(36, 36, W - 72, H - 72, 48, null, t.border, 5);
+
+          drawRoundRect(80, 85, 88, 88, 24, t.accent, null);
+          ctx.fillStyle = '#020617';
+          ctx.font = 'bold 48px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('🔥', 124, 146);
+
+          ctx.textAlign = 'left';
+          ctx.fillStyle = t.accentLight;
+          ctx.font = 'bold 21px sans-serif';
+          ctx.fillText('WEB APP INTERACTIVA DE NUTRICIÓN', 190, 118);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '900 48px sans-serif';
+          ctx.fillText('NutriSport 88kg Plan', 190, 165);
+
+          drawRoundRect(745, 98, 255, 56, 28, 'rgba(255,255,255,0.1)', 'rgba(255,255,255,0.25)', 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 22px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('⚡ 100% Personalizable', 872, 134);
+
+          let curY = 235;
+          drawRoundRect(250, curY, 580, 50, 25, 'rgba(245, 158, 11, 0.18)', 'rgba(251, 191, 36, 0.45)', 2);
+          ctx.fillStyle = '#fde68a';
+          ctx.font = 'bold 22px sans-serif';
+          ctx.fillText('✨ NUTRICIÓN DEPORTIVA + COCINA PRÁCTICA', W / 2, curY + 33);
+
+          curY += 105;
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '900 58px sans-serif';
+          ctx.fillText('Transformá tu Energía y', W / 2, curY);
+          curY += 68;
+          ctx.fillStyle = t.accentLight;
+          ctx.fillText('Perdé Peso Sin Pasar Hambre', W / 2, curY);
+
+          curY += 52;
+          ctx.fillStyle = '#cbd5e1';
+          ctx.font = '26px sans-serif';
+          ctx.fillText('Calculadora inteligente de macros y planificador de 4 comidas diarias', W / 2, curY);
+
+          curY += 45;
+          const cards = [
+            { icon: '🛡️', title: '100% SIN LACTOSA', sub: 'Digestión liviana y desinflamatoria', bg: 'rgba(16, 185, 129, 0.22)', br: 'rgba(52, 211, 153, 0.5)', col: '#a7f3d0' },
+            { icon: '🧉', title: 'SIN CAFÉ (CON MATE)', sub: 'Energía natural con Mate y Té Verde', bg: 'rgba(245, 158, 11, 0.22)', br: 'rgba(251, 191, 36, 0.5)', col: '#fde68a' },
+            { icon: '💧', title: '0% ALCOHOL', sub: 'Hidratación y oxidación de grasa', bg: 'rgba(6, 182, 212, 0.22)', br: 'rgba(34, 211, 238, 0.5)', col: '#a5f3fc' },
+            { icon: '🔥', title: 'ESPECIAL AIR FRYER', sub: 'Tiempos y °C exactos de cocción', bg: 'rgba(244, 63, 94, 0.25)', br: 'rgba(251, 113, 133, 0.55)', col: '#fecdd3' }
+          ];
+
+          cards.forEach((c, idx) => {
+            const colIdx = idx % 2;
+            const rowIdx = Math.floor(idx / 2);
+            const cx = 80 + colIdx * 470;
+            const cy = curY + rowIdx * 135;
+            drawRoundRect(cx, cy, 450, 118, 26, c.bg, c.br, 2.5);
+
+            ctx.textAlign = 'left';
+            ctx.font = '44px sans-serif';
+            ctx.fillText(c.icon, cx + 24, cy + 74);
+
+            ctx.fillStyle = c.col;
+            ctx.font = '900 25px sans-serif';
+            ctx.fillText(c.title, cx + 92, cy + 54);
+
+            ctx.fillStyle = '#f1f5f9';
+            ctx.font = '20px sans-serif';
+            ctx.fillText(c.sub, cx + 92, cy + 86);
+          });
+
+          curY += 295;
+          drawRoundRect(80, curY, 920, 225, 32, 'rgba(2, 6, 23, 0.82)', 'rgba(255,255,255,0.18)', 2);
+          ctx.textAlign = 'left';
+          ctx.fillStyle = t.accentLight;
+          ctx.font = 'bold 24px sans-serif';
+          ctx.fillText('⚡ CALIBRADA PARA 5 DISCIPLINAS DEPORTIVAS REALES', 115, curY + 48);
+
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#34d399';
+          ctx.font = 'bold 22px sans-serif';
+          ctx.fillText('6.5 sesiones / sem', 965, curY + 48);
+
+          const sports = [
+            { emoji: '🏋️‍♂️', name: 'Gym', desc: 'Fuerza', col: 'rgba(59, 130, 246, 0.22)', br: 'rgba(96, 165, 250, 0.45)' },
+            { emoji: '🎾', name: 'Tenis', desc: 'Potencia', col: 'rgba(16, 185, 129, 0.22)', br: 'rgba(52, 211, 153, 0.45)' },
+            { emoji: '🧘‍♂️', name: 'Tai Chi', desc: 'Fluidez', col: 'rgba(245, 158, 11, 0.22)', br: 'rgba(251, 191, 36, 0.45)' },
+            { emoji: '🎶', name: 'Ritmo', desc: 'Cardio', col: 'rgba(168, 85, 247, 0.22)', br: 'rgba(192, 132, 252, 0.45)' },
+            { emoji: '🏹', name: 'Arquería', desc: 'Foco', col: 'rgba(244, 63, 94, 0.22)', br: 'rgba(251, 113, 133, 0.45)' }
+          ];
+
+          sports.forEach((sp, i) => {
+            const sx = 105 + i * 176;
+            const sy = curY + 72;
+            drawRoundRect(sx, sy, 162, 130, 22, sp.col, sp.br, 2);
+            ctx.textAlign = 'center';
+            ctx.font = '38px sans-serif';
+            ctx.fillText(sp.emoji, sx + 81, sy + 52);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 23px sans-serif';
+            ctx.fillText(sp.name, sx + 81, sy + 88);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '18px sans-serif';
+            ctx.fillText(sp.desc, sx + 81, sy + 114);
+          });
+
+          curY += 255;
+          const features = [
+            {
+              icon: '🔍',
+              title: 'Buscador Inteligente por Palabra Clave',
+              desc: 'Escribí "pollo", "cerdo", "papa", "huevo" o "mate" y reemplazá platos con 1 clic.',
+              br: 'rgba(251, 191, 36, 0.45)',
+              col: '#fcd34d'
+            },
+            {
+              icon: '⚖️',
+              title: 'Auto-Calibración Exacta de Porciones',
+              desc: 'Ajusta automáticamente los gramos de tus 4 comidas para clavar tu déficit calórico.',
+              br: 'rgba(192, 132, 252, 0.45)',
+              col: '#d8b4fe'
+            }
+          ];
+
+          if (flyerFormat === 'story') {
+            features.push({
+              icon: '📘',
+              title: 'Manual Paso a Paso + Tabla Maestra Air Fryer',
+              desc: 'Guía visual por colores con temperaturas y minutos exactos para cada corte magro.',
+              br: 'rgba(129, 140, 248, 0.45)',
+              col: '#a5b4fc'
+            });
+          }
+
+          features.forEach((ft, idx) => {
+            const fy = curY + idx * 128;
+            drawRoundRect(80, fy, 920, 110, 24, 'rgba(2, 6, 23, 0.80)', ft.br, 2);
+            ctx.textAlign = 'center';
+            ctx.font = '38px sans-serif';
+            ctx.fillText(ft.icon, 138, fy + 68);
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = ft.col;
+            ctx.font = 'bold 26px sans-serif';
+            ctx.fillText(ft.title, 190, fy + 48);
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = '21px sans-serif';
+            ctx.fillText(ft.desc, 190, fy + 82);
+          });
+
+          const footerY = H - 255;
+          drawRoundRect(80, footerY, 920, 64, 20, 'rgba(255,255,255,0.07)', 'rgba(255,255,255,0.18)', 1.5);
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#6ee7b7';
+          ctx.font = 'bold 25px sans-serif';
+          ctx.fillText(
+            `🎯 Ejemplo Calibrado: ${weight} kg → ${targetWeight} kg • ${energyMetrics.targetCalories} kcal • ${energyMetrics.targetProteinG}g Proteína`,
+            W / 2,
+            footerY + 41
+          );
+
+          const ctaGrad = ctx.createLinearGradient(80, footerY + 82, 1000, footerY + 82);
+          ctaGrad.addColorStop(0, '#34d399');
+          ctaGrad.addColorStop(0.5, '#2dd4bf');
+          ctaGrad.addColorStop(1, '#fbbf24');
+          drawRoundRect(80, footerY + 84, 920, 110, 30, ctaGrad, null);
+
+          ctx.fillStyle = '#020617';
+          ctx.font = '900 22px sans-serif';
+          ctx.fillText('📲 ENTRÁ AHORA: lawlete.github.io/calculara-nutricional', W / 2, footerY + 126);
+          ctx.font = '900 34px sans-serif';
+          ctx.fillText('Probá la Calculadora y Armá tu Menú Hoy', W / 2, footerY + 170);
+
+          const dataUrl = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.download = `Flyer-NutriSport-WhatsApp-${flyerTheme}-${flyerFormat}.png`;
+          link.href = dataUrl;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          triggerFeedback('✅ ¡Imagen PNG descargada! Buscala en tu carpeta de Descargas o Galería para subirla a WhatsApp.');
+        } catch (error) {
+          triggerFeedback('⚠️ No se pudo generar la descarga directa. Podés tomar captura o usar Guardar en PDF.');
+        } finally {
+          setIsDownloadingFlyer(false);
+        }
+      };
+
+      return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 pb-16 selection:bg-emerald-500 selection:text-slate-950">
+          {/* HEADER SUPERIOR */}
+          <header className="border-b border-slate-800 bg-slate-900/95 backdrop-blur-md sticky top-0 z-30">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 space-y-3">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <Flame className="w-6 h-6 text-slate-950" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                        NutriSport <span className="text-emerald-400 font-light">88kg Plan</span>
+                      </h1>
+                      <span className="text-xs px-2.5 py-0.5 rounded-md bg-slate-800 text-emerald-300 border border-slate-700 font-semibold">
+                        Varón • {age} años • {weight} kg • {(height / 100).toFixed(2)} m
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-400">
+                      Déficit Calórico Inteligente, 4 Comidas Diarias y Gasto Real para tus 5 Disciplinas
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    <ShieldCheck className="w-3.5 h-3.5" /> 100% Sin Lactosa
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                    🧉 Sin Café (Mate / Té)
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                    💧 0% Alcohol
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                    <Flame className="w-3.5 h-3.5" /> Especial Air Fryer
+                  </span>
+                </div>
+              </div>
+
+              {/* BARRA DE NAVEGACIÓN DE MODOS */}
+              <div className="pt-2.5 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div className="flex flex-wrap items-center gap-1.5 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('app')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      viewMode === 'app'
+                        ? 'bg-emerald-500 text-slate-950 font-bold shadow-md'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    <Utensils className="w-3.5 h-3.5" /> 🧮 Calculadora y Planificador
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('manual')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      viewMode === 'manual'
+                        ? 'bg-indigo-500 text-white font-bold shadow-md'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5" /> 📘 Manual de Uso Paso a Paso
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('combined')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      viewMode === 'combined'
+                        ? 'bg-gradient-to-r from-indigo-500 to-emerald-500 text-slate-950 font-bold shadow-md'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" /> ⚡ Vista Combinada (Guía + App)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('flyer')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      viewMode === 'flyer'
+                        ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-slate-950 font-extrabold shadow-lg shadow-emerald-500/20'
+                        : 'text-emerald-300 hover:text-white hover:bg-slate-900 border border-emerald-500/30'
+                    }`}
+                  >
+                    <Share2 className="w-3.5 h-3.5" /> 📲 Flyer para WhatsApp
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-slate-400 mr-1">
+                    <span>Accesos rápidos:</span>
+                    <button
+                      type="button"
+                      onClick={() => handleJumpToSection('seccion-biometria')}
+                      className="px-2 py-1 rounded bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 border border-indigo-500/20 font-medium"
+                    >
+                      1. Biometría
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleJumpToSection('seccion-deportes')}
+                      className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 border border-emerald-500/20 font-medium"
+                    >
+                      2. Deportes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleJumpToSection('planificador-comidas')}
+                      className="px-2 py-1 rounded bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 border border-amber-500/20 font-medium"
+                    >
+                      3. Buscador y 4 Comidas
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleJumpToSection('seccion-semaforo')}
+                      className="px-2 py-1 rounded bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 border border-purple-500/20 font-medium"
+                    >
+                      4. Semáforo Macros
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
+                  >
+                    <Printer className="w-3.5 h-3.5 text-emerald-400" /> 🖨️ Imprimir / Exportar PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-8">
+            {/* MÓDULO FLYER PROMOCIONAL PARA WHATSAPP */}
+            {viewMode === 'flyer' && (
+              <section className="space-y-6">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+                      <Smartphone className="w-4 h-4" /> Estudio de Difusión para WhatsApp
+                    </div>
+                    <h2 className="text-lg sm:text-xl font-extrabold text-white">
+                      Flyer Oficial de Alta Conversión + Mensajes Listos para Enviar
+                    </h2>
+                    <p className="text-xs text-slate-400">
+                      Descargá el flyer en imagen PNG de alta definición con el botón debajo del póster y copiá el mensaje promocional con un clic.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-1.5 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+                      <span className="text-[11px] text-slate-400 px-2">Paleta:</span>
+                      <button
+                        type="button"
+                        onClick={() => setFlyerTheme('emerald')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                          flyerTheme === 'emerald' ? 'bg-emerald-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-900'
+                        }`}
+                      >
+                        🟢 Esmeralda Sport
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFlyerTheme('amber')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                          flyerTheme === 'amber' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-900'
+                        }`}
+                      >
+                        🟠 Fuego Air Fryer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFlyerTheme('indigo')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                          flyerTheme === 'indigo' ? 'bg-indigo-500 text-white shadow' : 'text-slate-300 hover:bg-slate-900'
+                        }`}
+                      >
+                        🔵 Índigo Pro
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setFlyerFormat('story')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          flyerFormat === 'story' ? 'bg-slate-800 text-emerald-300 border border-emerald-500/30' : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        📱 Vertical Estado/Chat
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFlyerFormat('post')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          flyerFormat === 'post' ? 'bg-slate-800 text-emerald-300 border border-emerald-500/30' : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        🖼️ Compacto Cuadrado
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {actionFeedback && (
+                  <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-between">
+                    <span>{actionFeedback}</span>
+                    <button onClick={() => setActionFeedback(null)} className="text-emerald-300 hover:text-white">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  <div className="lg:col-span-7 flex flex-col items-center">
+                    <div
+                      id="whatsapp-flyer-canvas"
+                      className={`w-full ${
+                        flyerFormat === 'story' ? 'max-w-[460px]' : 'max-w-[540px]'
+                      } rounded-[32px] p-6 sm:p-7 relative overflow-hidden shadow-2xl border-2 transition-all duration-300 ${
+                        flyerTheme === 'emerald'
+                          ? 'bg-gradient-to-b from-slate-900 via-emerald-950/90 to-slate-950 border-emerald-400/60 shadow-emerald-500/20'
+                          : flyerTheme === 'amber'
+                          ? 'bg-gradient-to-b from-slate-900 via-rose-950/85 to-slate-950 border-amber-400/60 shadow-amber-500/20'
+                          : 'bg-gradient-to-b from-slate-900 via-indigo-950/90 to-slate-950 border-indigo-400/60 shadow-indigo-500/20'
+                      }`}
+                    >
+                      <div className="relative z-10 flex items-center justify-between gap-2 pb-4 border-b border-white/10">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg ${
+                            flyerTheme === 'emerald'
+                              ? 'bg-gradient-to-br from-emerald-400 to-teal-500 text-slate-950'
+                              : flyerTheme === 'amber'
+                              ? 'bg-gradient-to-br from-amber-400 to-rose-500 text-slate-950'
+                              : 'bg-gradient-to-br from-indigo-400 to-cyan-400 text-slate-950'
+                          }`}>
+                            <Flame className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-300 block">
+                              Web App Interactiva
+                            </span>
+                            <h3 className="text-xl font-black tracking-tight text-white leading-none">
+                              NutriSport <span className="text-emerald-400">Plan</span>
+                            </h3>
+                          </div>
+                        </div>
+
+                        <span className="px-3 py-1 rounded-full text-[11px] font-extrabold bg-white/10 text-white border border-white/20 backdrop-blur-md">
+                          ⚡ 100% Personalizable
+                        </span>
+                      </div>
+
+                      <div className="relative z-10 text-center my-5 space-y-2">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/40 text-amber-300 text-[11px] font-extrabold uppercase tracking-wider">
+                          <Sparkles className="w-3.5 h-3.5" /> Nutrición Deportiva + Cocina Práctica
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight">
+                          Transformá tu Energía y Perdé Peso{' '}
+                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-amber-300">
+                            Sin Pasar Hambre
+                          </span>
+                        </h2>
+                        <p className="text-xs text-slate-200/90 max-w-sm mx-auto leading-relaxed">
+                          Calculadora inteligente de macronutrientes y planificador diario de <strong>4 comidas</strong> adaptado a tu entrenamiento real.
+                        </p>
+                      </div>
+
+                      <div className="relative z-10 grid grid-cols-2 gap-2.5 my-4">
+                        <div className="bg-emerald-500/20 border border-emerald-400/40 rounded-2xl p-3 flex items-center gap-2.5">
+                          <span className="text-xl">🛡️</span>
+                          <div>
+                            <div className="text-xs font-black text-emerald-200 uppercase">100% Sin Lactosa</div>
+                            <div className="text-[10px] text-emerald-100/80">Digestión liviana y desinflamatoria</div>
+                          </div>
+                        </div>
+                        <div className="bg-amber-500/20 border border-amber-400/40 rounded-2xl p-3 flex items-center gap-2.5">
+                          <span className="text-xl">🧉</span>
+                          <div>
+                            <div className="text-xs font-black text-amber-200 uppercase">Sin Café (Con Mate)</div>
+                            <div className="text-[10px] text-amber-100/80">Energía natural con Mate y Té Verde</div>
+                          </div>
+                        </div>
+                        <div className="bg-cyan-500/20 border border-cyan-400/40 rounded-2xl p-3 flex items-center gap-2.5">
+                          <span className="text-xl">💧</span>
+                          <div>
+                            <div className="text-xs font-black text-cyan-200 uppercase">0% Alcohol</div>
+                            <div className="text-[10px] text-cyan-100/80">Hidratación y oxidación de grasa</div>
+                          </div>
+                        </div>
+                        <div className="bg-rose-500/25 border border-rose-400/50 rounded-2xl p-3 flex items-center gap-2.5">
+                          <span className="text-xl">🔥</span>
+                          <div>
+                            <div className="text-xs font-black text-rose-200 uppercase">Especial Air Fryer</div>
+                            <div className="text-[10px] text-rose-100/80">Tiempos y °C exactos de cocción</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="relative z-10 bg-slate-950/80 border border-white/15 rounded-2xl p-3.5 my-4 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+                            <Activity className="w-3.5 h-3.5" /> Calibrada para 5 Disciplinas Reales
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                            6.5 sesiones / sem
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-5 gap-1.5 text-center">
+                          <div className="bg-blue-500/15 border border-blue-400/30 rounded-xl p-2">
+                            <div className="text-base">🏋️‍♂️</div>
+                            <div className="text-[10px] font-bold text-blue-200 mt-0.5">Gym</div>
+                            <div className="text-[9px] text-blue-300/80">Fuerza</div>
+                          </div>
+                          <div className="bg-emerald-500/15 border border-emerald-400/30 rounded-xl p-2">
+                            <div className="text-base">🎾</div>
+                            <div className="text-[10px] font-bold text-emerald-200 mt-0.5">Tenis</div>
+                            <div className="text-[9px] text-emerald-300/80">Potencia</div>
+                          </div>
+                          <div className="bg-amber-500/15 border border-amber-400/30 rounded-xl p-2">
+                            <div className="text-base">🧘‍♂️</div>
+                            <div className="text-[10px] font-bold text-amber-200 mt-0.5">Tai Chi</div>
+                            <div className="text-[9px] text-amber-300/80">Fluidez</div>
+                          </div>
+                          <div className="bg-purple-500/15 border border-purple-400/30 rounded-xl p-2">
+                            <div className="text-base">🎶</div>
+                            <div className="text-[10px] font-bold text-purple-200 mt-0.5">Ritmo</div>
+                            <div className="text-[9px] text-purple-300/80">Cardio</div>
+                          </div>
+                          <div className="bg-rose-500/15 border border-rose-400/30 rounded-xl p-2">
+                            <div className="text-base">🏹</div>
+                            <div className="text-[10px] font-bold text-rose-200 mt-0.5">Arquería</div>
+                            <div className="text-[9px] text-rose-300/80">Foco</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="relative z-10 space-y-2 my-4 text-xs">
+                        <div className="bg-slate-950/75 border border-amber-400/30 rounded-xl p-3 flex items-start gap-3">
+                          <span className="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center shrink-0 text-sm">🔍</span>
+                          <div>
+                            <strong className="text-amber-300 block">Buscador Inteligente por Palabra Clave</strong>
+                            <span className="text-slate-300 text-[11px]">
+                              Escribí <em>"pollo"</em>, <em>"cerdo"</em>, <em>"papa"</em>, <em>"huevo"</em> o <em>"mate"</em> y reemplazá proteínas o platos enteros con 1 clic.
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-950/75 border border-purple-400/30 rounded-xl p-3 flex items-start gap-3">
+                          <span className="w-7 h-7 rounded-lg bg-purple-400 text-slate-950 font-black flex items-center justify-center shrink-0 text-sm">⚖️</span>
+                          <div>
+                            <strong className="text-purple-300 block">Auto-Calibración Exacta de Porciones</strong>
+                            <span className="text-slate-300 text-[11px]">
+                              Ajusta automáticamente los gramos de tus 4 comidas para clavar tu meta de déficit calórico y proteger el músculo.
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="relative z-10 mt-5 pt-4 border-t border-white/15 flex flex-col gap-3">
+                        <div className="flex items-center justify-between text-[11px] bg-white/5 px-3 py-2 rounded-xl border border-white/10">
+                          <span className="text-slate-300">🎯 Ejemplo Calibrado:</span>
+                          <span className="font-extrabold text-emerald-300">
+                            {weight} kg → {targetWeight} kg • {energyMetrics.targetCalories} kcal • {energyMetrics.targetProteinG}g Prot
+                          </span>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-amber-300 text-slate-950 rounded-2xl p-3.5 text-center shadow-lg">
+                          <div className="text-[10px] font-black uppercase tracking-widest opacity-85">
+                            📲 lawlete.github.io/calculara-nutricional
+                          </div>
+                          <div className="text-sm sm:text-base font-black tracking-tight mt-0.5">
+                            Probá la Calculadora y Armá tu Menú Hoy
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full max-w-[460px] mt-4 space-y-2">
+                      <button
+                        type="button"
+                        onClick={handleDownloadFlyerImage}
+                        disabled={isDownloadingFlyer}
+                        className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-amber-300 hover:from-emerald-300 hover:to-amber-200 text-slate-950 font-black text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl shadow-emerald-500/25 transition-all cursor-pointer"
+                      >
+                        <Download className="w-5 h-5" />
+                        {isDownloadingFlyer ? 'Generando Imagen HD...' : '📥 Descargar Flyer en Imagen PNG (HD para WhatsApp)'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-5 space-y-5">
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-5 h-5 text-emerald-400" />
+                          <h3 className="text-base font-bold text-white">Mensajes con Formato WhatsApp</h3>
+                        </div>
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-semibold">
+                          Con Negritas y Emojis
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {WHATSAPP_CAPTIONS.map((cap, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setSelectedCaptionIdx(idx)}
+                            className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex items-center justify-between ${
+                              selectedCaptionIdx === idx
+                                ? 'bg-emerald-500/15 border-emerald-500 text-white font-bold'
+                                : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                            }`}
+                          >
+                            <span>{cap.title}</span>
+                            {selectedCaptionIdx === idx && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="bg-[#0b141a] border border-emerald-500/30 rounded-2xl p-4 space-y-2">
+                        <pre className="text-xs text-slate-100 whitespace-pre-wrap font-sans leading-relaxed bg-[#005c4b]/40 p-3.5 rounded-xl border border-emerald-500/20">
+                          {WHATSAPP_CAPTIONS[selectedCaptionIdx].text}
+                        </pre>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleCopyWhatsappText(WHATSAPP_CAPTIONS[selectedCaptionIdx].text)}
+                        className="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all"
+                      >
+                        {copiedCaption ? (
+                          <><Check className="w-4 h-4" /> ¡Texto Copiado! Pegalo en WhatsApp</>
+                        ) : (
+                          <><Copy className="w-4 h-4" /> Copiar Texto para WhatsApp</>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* MANUAL DE USO PROFESIONAL */}
+            {(viewMode === 'manual' || viewMode === 'combined') && (
+              <section id="manual-uso-profesional" className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-7 relative overflow-hidden">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-5 relative z-10">
+                  <div className="space-y-1.5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                      <BookOpen className="w-3.5 h-3.5" /> Documentación Interactiva del Sistema
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                      📘 Manual de Uso Profesional <span className="text-emerald-400 font-normal text-lg sm:text-xl">— Guía Paso a Paso</span>
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-300 max-w-3xl">
+                      Aprendé a dominar tu calculadora nutricional y planificador deportivo calibrado para <strong className="text-white">{weight} kg y {(height / 100).toFixed(2)} m</strong> en 5 pasos codificados por color.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 bg-slate-950/90 p-2.5 rounded-2xl border border-slate-800 shrink-0">
+                    <a href="#paso-1-manual" className="px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[11px] font-bold">Paso 1: Biometría</a>
+                    <a href="#paso-2-manual" className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">Paso 2: 5 Deportes</a>
+                    <a href="#paso-3-manual" className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-bold">Paso 3: Buscador y Comidas</a>
+                    <a href="#paso-4-manual" className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[11px] font-bold">Paso 4: Auto-Calibración</a>
+                    <a href="#paso-5-manual" className="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[11px] font-bold">Paso 5: Air Fryer</a>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
+                  <div id="paso-1-manual" className="bg-gradient-to-br from-indigo-950/50 via-slate-950 to-slate-900 border-2 border-indigo-500/40 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-lg">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <span className="w-10 h-10 rounded-xl bg-indigo-500 text-white font-black text-lg flex items-center justify-center shrink-0">1</span>
+                        <div>
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-400 block">Módulo Antropométrico (Color Índigo)</span>
+                          <h3 className="text-base sm:text-lg font-bold text-white">Configuración Biológica y Meta de Peso</h3>
+                        </div>
+                      </div>
+                      <ul className="space-y-2 text-xs text-slate-200 bg-slate-950/80 p-4 rounded-xl border border-indigo-500/20">
+                        <li><strong>1.1. Peso Actual y Meta:</strong> Calibrado en <strong>88 kg</strong> y <strong>169 cm</strong> con meta proyectada hacia <strong>78 kg</strong>.</li>
+                        <li><strong>1.2. Nivel de Déficit:</strong> Elegí entre Leve (-350 kcal), Moderado (-500 kcal) o Intenso (-650 kcal).</li>
+                        <li><strong>1.3. Proteínas:</strong> Calculadas sobre tu Peso Meta (~156 g/día) para proteger masa muscular.</li>
+                      </ul>
+                    </div>
+                    <div className="pt-4 mt-4 border-t border-indigo-500/20 flex justify-end">
+                      <button type="button" onClick={() => handleJumpToSection('seccion-biometria')} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs">
+                        Ir al Paso 1 en la App <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div id="paso-2-manual" className="bg-gradient-to-br from-emerald-950/50 via-slate-950 to-slate-900 border-2 border-emerald-500/40 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-lg">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <span className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 font-black text-lg flex items-center justify-center shrink-0">2</span>
+                        <div>
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block">Módulo Deportivo (Color Esmeralda)</span>
+                          <h3 className="text-base sm:text-lg font-bold text-white">Cronograma de 5 Deportes y "¿Qué entrenás hoy?"</h3>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-300">
+                        Tus 5 disciplinas (Gimnasio 2x, Tenis 1.5x, Tai Chi 1x, Ritmo 1x y Arquería 1x) suman <strong>+{energyMetrics.totalWeeklySportKcal} kcal/semana</strong> (+{energyMetrics.avgDailySportKcal} kcal/día promedio).
+                      </p>
+                    </div>
+                    <div className="pt-4 mt-4 border-t border-emerald-500/20 flex justify-end">
+                      <button type="button" onClick={() => handleJumpToSection('seccion-deportes')} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs">
+                        Ir al Paso 2 (Deportes) <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="paso-3-manual" className="bg-gradient-to-br from-amber-950/40 via-slate-950 to-slate-900 border-2 border-amber-500/50 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl relative z-10">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 font-black text-lg flex items-center justify-center shrink-0">3</span>
+                      <div>
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-400 block">Corazón Operativo (Color Ámbar)</span>
+                        <h3 className="text-base sm:text-lg font-bold text-white">Buscador por Palabra Clave y Planificador de 4 Comidas</h3>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleJumpToSection('planificador-comidas', () => { setSelectedMealToAdd('almuerzo'); setPlannerKeyword('pollo'); })}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs"
+                    >
+                      <Search className="w-3.5 h-3.5" /> Probar búsqueda "pollo" ahora
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+                      <strong className="text-emerald-300 block">+ Sumar</strong>
+                      Agrega un ingrediente adicional a la comida elegida sin borrar lo que ya tenías.
+                    </div>
+                    <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30">
+                      <strong className="text-blue-300 block">🔄 Reemplazar Proteína</strong>
+                      Cambia únicamente el corte principal (ej. pollo por cerdo o pescado) manteniendo tu guarnición.
+                    </div>
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                      <strong className="text-amber-300 block">🍽️ Usar Plato</strong>
+                      Renueva toda esa comida con un plato completo pre-calibrado.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+                  <div id="paso-4-manual" className="lg:col-span-5 bg-gradient-to-br from-purple-950/50 via-slate-950 to-slate-900 border-2 border-purple-500/40 rounded-2xl p-5 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <span className="w-10 h-10 rounded-xl bg-purple-500 text-white font-black text-lg flex items-center justify-center shrink-0">4</span>
+                        <div>
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-purple-400 block">Control de Precisión (Color Violeta)</span>
+                          <h3 className="text-base font-bold text-white">Semáforo y Auto-Calibración</h3>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-300">
+                        Tocá el botón <strong>"⚖️ Auto-Calibrar Porciones"</strong> para que la app ajuste automáticamente los gramos de tus 4 comidas y clave tu meta de <strong>{energyMetrics.targetCalories} kcal</strong>.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleJumpToSection('seccion-semaforo', handleAutoCalibrateCurrentMenu)}
+                      className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-500 hover:bg-purple-400 text-white font-bold text-xs"
+                    >
+                      <RefreshCw className="w-4 h-4" /> Auto-Calibrar Ahora ({energyMetrics.targetCalories} kcal)
+                    </button>
+                  </div>
+
+                  <div id="paso-5-manual" className="lg:col-span-7 bg-gradient-to-br from-rose-950/40 via-slate-950 to-slate-900 border-2 border-rose-500/40 rounded-2xl p-5 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-10 rounded-xl bg-rose-500 text-white font-black text-lg flex items-center justify-center shrink-0">5</span>
+                      <div>
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-rose-400 block">Ejecución Culinaria (Color Coral)</span>
+                        <h3 className="text-base font-bold text-white">Tabla Maestra de Cocción en Air Fryer</h3>
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto rounded-xl border border-rose-500/20 bg-slate-950/90">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-[11px] text-rose-300 bg-rose-500/10">
+                            <th className="py-2 px-3 font-bold">Corte / Guarnición</th>
+                            <th className="py-2 px-2.5 font-bold">Temp.</th>
+                            <th className="py-2 px-2.5 font-bold">Tiempo</th>
+                            <th className="py-2 px-3 font-bold">Tip de Jugosidad</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/70 text-[11px]">
+                          {AIR_FRYER_GUIDE_TABLE.map((row, idx) => (
+                            <tr key={idx}>
+                              <td className="py-1.5 px-3 font-semibold text-white">{row.cut}</td>
+                              <td className="py-1.5 px-2.5 text-amber-300 font-bold">{row.temp}</td>
+                              <td className="py-1.5 px-2.5 text-emerald-300 font-bold">{row.time}</td>
+                              <td className="py-1.5 px-3 text-slate-300">{row.action}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* CALCULADORA Y PLANIFICADOR INTERACTIVO */}
+            {(viewMode === 'app' || viewMode === 'combined') && (
+              <>
+                {/* SECCIÓN 1: TABLERO DE COMANDO ENERGÉTICO Y MACROS */}
+                <section
+                  id="seccion-semaforo"
+                  className={`grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-500 rounded-3xl ${
+                    highlightedSection === 'seccion-semaforo' ? 'ring-2 ring-purple-500 ring-offset-4 ring-offset-slate-950' : ''
+                  }`}
+                >
+                  <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                          <Zap className="w-4 h-4" /> Balance Calórico Diario
+                        </span>
+                        <span className="text-xs px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-semibold">
+                          Déficit Activo: -{energyMetrics.actualDeficit} kcal/día
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3 my-3 text-center bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80">
+                        <div>
+                          <p className="text-xs text-slate-400">Gasto Total (TDEE)</p>
+                          <p className="text-lg sm:text-xl font-bold text-slate-200 mt-0.5">{energyMetrics.tdee}</p>
+                          <p className="text-[10px] text-slate-500">kcal quemadas</p>
+                        </div>
+                        <div className="border-x border-slate-800">
+                          <p className="text-xs text-emerald-400 font-semibold">Objetivo Déficit</p>
+                          <p className="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-0.5">{energyMetrics.targetCalories}</p>
+                          <p className="text-[10px] text-emerald-500/80">kcal meta hoy</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-400">Planificado Hoy</p>
+                          <p className={`text-lg sm:text-xl font-bold mt-0.5 ${
+                            isCalorieOnTrack ? 'text-emerald-300' : calDiff > 110 ? 'text-rose-400' : 'text-amber-300'
+                          }`}>
+                            {consumedTotals.cal}
+                          </p>
+                          <p className="text-[10px] text-slate-500">en tus 4 comidas</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <div className="flex justify-between text-xs mb-1.5">
+                          <span className="text-slate-300 font-medium">Cuadre del Menú vs. Meta</span>
+                          <span className="font-semibold text-slate-200">
+                            {Math.round((consumedTotals.cal / energyMetrics.targetCalories) * 100)}% ({consumedTotals.cal} / {energyMetrics.targetCalories} kcal)
+                          </span>
+                        </div>
+                        <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                          <div 
+                            className={`h-full transition-all duration-300 rounded-full ${
+                              calDiff > 110 
+                                ? 'bg-gradient-to-r from-amber-500 to-rose-500' 
+                                : isCalorieOnTrack 
+                                ? 'bg-gradient-to-r from-emerald-500 to-teal-400' 
+                                : 'bg-gradient-to-r from-blue-500 to-emerald-400'
+                            }`}
+                            style={{ width: `${Math.min(100, (consumedTotals.cal / energyMetrics.targetCalories) * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 pt-4 border-t border-slate-800/80 space-y-2.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-400 flex items-center gap-1.5">
+                          <TrendingDown className="w-4 h-4 text-emerald-400" />
+                          Proyección ({weight} kg → {targetWeight} kg):
+                        </span>
+                        <span className="font-bold text-emerald-300 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/20">
+                          -{energyMetrics.estimatedWeeklyLossKg} kg / semana
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 text-xs">
+                        <div>
+                          <span className="text-[10px] text-slate-400 block">Evolución IMC ({height} cm)</span>
+                          <div className="font-bold text-slate-200 flex items-center gap-1.5 mt-0.5">
+                            <span className="text-amber-400">{energyMetrics.currentBmi}</span>
+                            <ArrowRight className="w-3 h-3 text-slate-500" />
+                            <span className="text-emerald-400">{energyMetrics.targetBmi}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 block">Tiempo Estimado (-{energyMetrics.kgToLose} kg)</span>
+                          <div className="font-bold text-white flex items-center gap-1 mt-0.5">
+                            <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+                            {energyMetrics.weeksToGoal > 0 ? `~${energyMetrics.weeksToGoal} semanas` : '¡En peso meta!'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div>
+                          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                            <HeartPulse className="w-5 h-5 text-emerald-400" />
+                            Macronutrientes para {weight} kg en Déficit
+                          </h2>
+                          <p className="text-xs text-slate-400">
+                            Proteína calculada sobre <strong className="text-slate-200">{energyMetrics.referenceWeightForProtein} kg</strong> ({proteinMultiplier}g/kg).
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={handleAutoCalibrateCurrentMenu}
+                          className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-all shrink-0"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" /> ⚖️ Auto-Calibrar Porciones ({energyMetrics.targetCalories} kcal)
+                        </button>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-[11px] text-slate-400 mb-1.5 font-medium">
+                          ¿Qué entrenás hoy? (Adapta tu techo calórico del día):
+                        </label>
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+                          {[
+                            { id: 'promedio', label: '📊 Promedio Semanal' },
+                            { id: 'tenis', label: '🎾 Día de Tenis' },
+                            { id: 'gym', label: '🏋️ Día de Gym' },
+                            { id: 'taichi_ritmo_arq', label: '🏹 Tai Chi / Ritmo / Arq' },
+                            { id: 'descanso', label: '🛋️ Día Descanso' }
+                          ].map(mode => (
+                            <button
+                              key={mode.id}
+                              onClick={() => setDayMode(mode.id)}
+                              className={`px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all text-center ${
+                                dayMode === mode.id ? 'bg-emerald-500 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                              }`}
+                            >
+                              {mode.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-2">
+                        <div className="bg-slate-950/70 border border-slate-800/90 rounded-xl p-4">
+                          <span className="text-xs font-bold uppercase tracking-wider text-blue-400">Proteínas</span>
+                          <div className="flex items-baseline gap-1 my-2">
+                            <span className="text-2xl font-extrabold text-white">{consumedTotals.p}g</span>
+                            <span className="text-xs text-slate-400">/ {energyMetrics.targetProteinG}g meta</span>
+                          </div>
+                          <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min(100, (consumedTotals.p / energyMetrics.targetProteinG) * 100)}%` }} />
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-950/70 border border-slate-800/90 rounded-xl p-4">
+                          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Carbohidratos</span>
+                          <div className="flex items-baseline gap-1 my-2">
+                            <span className="text-2xl font-extrabold text-white">{consumedTotals.c}g</span>
+                            <span className="text-xs text-slate-400">/ {energyMetrics.targetCarbsG}g meta</span>
+                          </div>
+                          <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min(100, (consumedTotals.c / energyMetrics.targetCarbsG) * 100)}%` }} />
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-950/70 border border-slate-800/90 rounded-xl p-4">
+                          <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Grasas Nobles</span>
+                          <div className="flex items-baseline gap-1 my-2">
+                            <span className="text-2xl font-extrabold text-white">{consumedTotals.f}g</span>
+                            <span className="text-xs text-slate-400">/ {energyMetrics.targetFatG}g meta</span>
+                          </div>
+                          <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+                            <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.min(100, (consumedTotals.f / energyMetrics.targetFatG) * 100)}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={`mt-3 px-4 py-2.5 rounded-xl border text-xs flex items-center gap-2 ${
+                      isCalorieOnTrack && isProteinMet
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+                        : 'bg-slate-950 border-slate-800 text-slate-300'
+                    }`}>
+                      {isCalorieOnTrack && isProteinMet ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      ) : (
+                        <Info className="w-4 h-4 text-amber-400 shrink-0" />
+                      )}
+                      <span>
+                        {isCalorieOnTrack && isProteinMet 
+                          ? `¡Excelente! Tus 4 comidas cuadran con tu meta de ${energyMetrics.targetCalories} kcal y ${energyMetrics.targetProteinG}g de proteína.`
+                          : `Podés tocar "Auto-Calibrar Porciones" arriba para cuadrar exactamente tus ${energyMetrics.targetCalories} kcal.`}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* SECCIÓN 2: BIOMETRÍA Y 5 DEPORTES */}
+                <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div
+                    id="seccion-biometria"
+                    className={`lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4 ${
+                      highlightedSection === 'seccion-biometria' ? 'ring-2 ring-indigo-500' : ''
+                    }`}
+                  >
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        <Sliders className="w-4 h-4 text-indigo-400" />
+                        1. Datos Antropométricos y Meta
+                      </h3>
+                      <span className="text-xs text-emerald-400 font-semibold">IMC: {energyMetrics.currentBmi}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      <div className="bg-slate-950 p-2.5 rounded-xl border border-emerald-500/40">
+                        <label className="block text-[10px] text-emerald-400 font-semibold mb-1">Peso Actual (kg)</label>
+                        <input type="number" min="50" max="160" step="0.5" value={weight} onChange={(e) => setWeight(parseFloat(e.target.value) || 88)} className="w-full bg-transparent text-base font-extrabold text-white focus:outline-none" />
+                      </div>
+                      <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                        <label className="block text-[10px] text-slate-400 mb-1">Peso Meta (kg)</label>
+                        <input type="number" min="55" max="120" step="0.5" value={targetWeight} onChange={(e) => setTargetWeight(parseFloat(e.target.value) || 78)} className="w-full bg-transparent text-base font-bold text-emerald-300 focus:outline-none" />
+                      </div>
+                      <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                        <label className="block text-[10px] text-slate-400 mb-1">Altura (cm)</label>
+                        <input type="number" min="140" max="220" value={height} onChange={(e) => setHeight(parseInt(e.target.value) || 169)} className="w-full bg-transparent text-base font-bold text-white focus:outline-none" />
+                      </div>
+                      <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                        <label className="block text-[10px] text-slate-400 mb-1">Edad (años)</label>
+                        <input type="number" min="18" max="95" value={age} onChange={(e) => setAge(parseInt(e.target.value) || 59)} className="w-full bg-transparent text-base font-bold text-white focus:outline-none" />
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 space-y-2">
+                      <div className="flex justify-between text-[11px]">
+                        <span className="text-slate-400">Peso Meta Proyectado: <strong className="text-emerald-300">{targetWeight} kg</strong> (IMC {energyMetrics.targetBmi})</span>
+                        <span className="text-slate-300">Bajar {energyMetrics.kgToLose} kg</span>
+                      </div>
+                      <input type="range" min="68" max="86" step="0.5" value={targetWeight} onChange={(e) => setTargetWeight(parseFloat(e.target.value))} className="w-full accent-emerald-500 cursor-pointer h-1.5" />
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { val: 350, label: 'Leve (-350)', desc: '~0.32 kg/sem' },
+                        { val: 500, label: 'Moderado (-500)', desc: '~0.45 kg/sem' },
+                        { val: 650, label: 'Intenso (-650)', desc: '~0.60 kg/sem' }
+                      ].map(opt => (
+                        <button
+                          key={opt.val}
+                          onClick={() => setDeficitTarget(opt.val)}
+                          className={`p-2 rounded-xl border text-left transition-all ${
+                            deficitTarget === opt.val ? 'bg-emerald-500/15 border-emerald-500 text-white' : 'bg-slate-950 border-slate-800 text-slate-400'
+                          }`}
+                        >
+                          <div className="text-xs font-bold">{opt.label}</div>
+                          <div className="text-[10px] opacity-80 mt-0.5">{opt.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="pt-1">
+                      <div className="flex justify-between text-xs mb-1.5">
+                        <span className="text-slate-300 font-medium">Estrategia de Proteínas</span>
+                        <span className="text-blue-400 font-bold">{energyMetrics.targetProteinG}g / día</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setProteinBasis('target_weight')}
+                          className={`p-2 rounded-xl border text-left text-[11px] transition-all ${
+                            proteinBasis === 'target_weight' ? 'bg-blue-500/15 border-blue-500 text-blue-200 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400'
+                          }`}
+                        >
+                          <div>Sobre Peso Meta ({targetWeight} kg)</div>
+                          <div className="text-[10px] opacity-80">Óptimo (~{Math.round(targetWeight * proteinMultiplier)}g)</div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setProteinBasis('total_weight')}
+                          className={`p-2 rounded-xl border text-left text-[11px] transition-all ${
+                            proteinBasis === 'total_weight' ? 'bg-blue-500/15 border-blue-500 text-blue-200 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400'
+                          }`}
+                        >
+                          <div>Sobre Peso Total ({weight} kg)</div>
+                          <div className="text-[10px] opacity-80">Alta exigencia (~{Math.round(weight * proteinMultiplier)}g)</div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    id="seccion-deportes"
+                    className={`lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col justify-between ${
+                      highlightedSection === 'seccion-deportes' ? 'ring-2 ring-emerald-500' : ''
+                    }`}
+                  >
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-2">
+                        <h3 className="text-base font-bold text-white flex items-center gap-2">
+                          <Activity className="w-4 h-4 text-emerald-400" />
+                          2. Gasto Deportivo Semanal Exacto (Base {weight} kg)
+                        </h3>
+                        <span className="text-xs font-extrabold text-emerald-400">+{energyMetrics.avgDailySportKcal} kcal/día</span>
+                      </div>
+
+                      {energyMetrics.activitiesBreakdown.map((act) => (
+                        <div key={act.id} className={`p-2.5 rounded-xl border ${act.border} ${act.bg} flex flex-col sm:flex-row sm:items-center justify-between gap-2`}>
+                          <div className="flex items-center gap-2.5">
+                            <div className={`p-2 rounded-lg bg-slate-950/80 ${act.color}`}>
+                              {renderActivityIcon(act.icon, "w-4 h-4")}
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-bold text-white">{act.name}</h4>
+                              <p className="text-[11px] text-slate-400">{act.kcalPerSession} kcal por sesión</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 self-end sm:self-center">
+                            <div className="bg-slate-950/90 px-2 py-1 rounded-lg border border-slate-800 flex items-center gap-1">
+                              <input type="number" min="0" max="10" step="0.5" value={act.freqPerWeek} onChange={(e) => handleActivityChange(act.id, 'freqPerWeek', e.target.value)} className="w-9 bg-transparent text-xs font-bold text-center text-white focus:outline-none" />
+                              <span className="text-[10px] text-slate-400">x/sem</span>
+                            </div>
+                            <div className="bg-slate-950/90 px-2 py-1 rounded-lg border border-slate-800 flex items-center gap-1">
+                              <input type="number" min="15" max="240" step="5" value={act.durationMin} onChange={(e) => handleActivityChange(act.id, 'durationMin', e.target.value)} className="w-10 bg-transparent text-xs font-bold text-center text-white focus:outline-none" />
+                              <span className="text-[10px] text-slate-400">min</span>
+                            </div>
+                            <span className={`text-xs font-bold min-w-[70px] text-right ${act.color}`}>{act.kcalPerWeek} kcal</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+                      <span>Quema deportiva semanal: <strong className="text-white">{energyMetrics.totalWeeklySportKcal} kcal/semana</strong></span>
+                      <span>Hidratación recomendada ({weight} kg): <strong className="text-cyan-300">{(weight * 0.038).toFixed(1)} L de agua/día</strong> + Mate</span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* SECCIÓN 3: PLANIFICADOR DE 4 COMIDAS DIARIAS CON BUSCADOR POR PALABRA CLAVE */}
+                <section id="planificador-comidas" className="space-y-6">
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                      <div>
+                        <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                          <Utensils className="w-5 h-5 text-emerald-400" />
+                          3. Planificador de 4 Comidas Diarias (Calibrado para {weight} kg)
+                        </h2>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Buscá alimentos o platos por palabra clave (ej: <strong className="text-emerald-300">pollo</strong>, <strong className="text-emerald-300">cerdo</strong>, <strong className="text-emerald-300">papa</strong>, <strong className="text-emerald-300">huevo</strong>, <strong className="text-emerald-300">mate</strong>).
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button onClick={() => handleLoadPreset('promedio')} className="px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
+                          ⚡ Día Equilibrado (Air Fryer)
+                        </button>
+                        <button onClick={() => handleLoadPreset('alto_gasto')} className="px-3 py-2 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 text-xs font-semibold">
+                          🎾 Día de Tenis / Gym
+                        </button>
+                        <button onClick={() => handleLoadPreset('descanso_moderado')} className="px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-semibold">
+                          🏹 Día Tai Chi / Arquería
+                        </button>
+                      </div>
+                    </div>
+
+                    {actionFeedback && (
+                      <div className="bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between">
+                        <span>{actionFeedback}</span>
+                        <button onClick={() => setActionFeedback(null)} className="text-emerald-300 hover:text-white">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                        <div className="relative flex-1">
+                          <Search className="w-4 h-4 text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <input
+                            type="text"
+                            value={plannerKeyword}
+                            onChange={(e) => setPlannerKeyword(e.target.value)}
+                            placeholder="🔍 Buscar alimento o plato por palabra clave (ej: pollo, cerdo, papa, huevo, mate)..."
+                            className="w-full bg-slate-900 border border-emerald-500/40 focus:border-emerald-400 rounded-xl pl-10 pr-9 py-2.5 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none"
+                          />
+                          {plannerKeyword && (
+                            <button type="button" onClick={() => setPlannerKeyword('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {QUICK_KEYWORD_CHIPS.map(chip => {
+                            const isActive = normalizeText(plannerKeyword) === chip.query;
+                            return (
+                              <button
+                                key={chip.query}
+                                type="button"
+                                onClick={() => setPlannerKeyword(isActive ? '' : chip.query)}
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all ${
+                                  isActive ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold' : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                                }`}
+                              >
+                                {chip.label}
+                              </button>
+                            );
+                          })}
+                          <button
+                            type="button"
+                            onClick={() => setOnlyAirFryerFilter(!onlyAirFryerFilter)}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 border transition-all ${
+                              onlyAirFryerFilter ? 'bg-rose-500/20 border-rose-500 text-rose-300' : 'bg-slate-900 border-slate-800 text-slate-400'
+                            }`}
+                          >
+                            <Flame className="w-3 h-3" /> Solo Air Fryer
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end pt-1">
+                        <div className="md:col-span-3">
+                          <label className="block text-xs text-slate-300 mb-1.5 font-semibold">1. Elegir Comida (1 a 4)</label>
+                          <select value={selectedMealToAdd} onChange={(e) => setSelectedMealToAdd(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-medium text-white focus:outline-none">
+                            {MEAL_SECTIONS.map(m => (
+                              <option key={m.id} value={m.id}>{m.icon} {m.label}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="md:col-span-5">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-xs text-slate-300 font-semibold">2. Alimento Apto (0% Lactosa / Sin Café)</label>
+                            <span className="text-[11px] text-emerald-400 font-medium">{filteredFoodsForSelector.length} opciones</span>
+                          </div>
+                          <select
+                            value={selectedFoodIdToAdd}
+                            onChange={(e) => setSelectedFoodIdToAdd(e.target.value)}
+                            disabled={filteredFoodsForSelector.length === 0}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-medium text-white focus:outline-none"
+                          >
+                            {filteredFoodsForSelector.map(f => (
+                              <option key={f.id} value={f.id}>
+                                {f.airFryer ? '🔥 ' : ''}{f.name} ({f.cal} kcal / {f.baseAmount} {f.unit})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-xs text-slate-300 mb-1.5 font-semibold">3. Cantidad ({currentlySelectedFoodObj?.unit || 'g'})</label>
+                          <input type="number" min="0.5" step="any" value={customAmountToAdd} onChange={(e) => setCustomAmountToAdd(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs font-bold text-white focus:outline-none" />
+                        </div>
+
+                        <div className="md:col-span-2 flex gap-1.5">
+                          <button onClick={() => handleAddFoodToMeal()} className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs py-2.5 px-2.5 rounded-xl flex items-center justify-center gap-1">
+                            <Plus className="w-4 h-4" /> Sumar
+                          </button>
+                          <button onClick={() => handleReplaceMainInMeal(selectedMealToAdd, selectedFoodIdToAdd, customAmountToAdd)} className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 font-semibold text-xs py-2.5 px-2.5 rounded-xl flex items-center justify-center" title="Reemplazar Proteína">
+                            <Replace className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => setShowCustomFoodModal(true)} className="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-700" title="Crear Alimento">
+                            <PlusCircle className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {currentlySelectedFoodObj && (
+                        <div className="bg-slate-900/90 border border-slate-800/90 rounded-xl px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-emerald-300">{currentlySelectedFoodObj.name}:</span>
+                            <span className="text-slate-300">
+                              {Math.round(currentlySelectedFoodObj.cal * (customAmountToAdd / currentlySelectedFoodObj.baseAmount))} kcal
+                            </span>
+                            <span className="text-blue-400 font-medium">
+                              • Prot: {(currentlySelectedFoodObj.p * (customAmountToAdd / currentlySelectedFoodObj.baseAmount)).toFixed(1)}g
+                            </span>
+                            <span className="text-emerald-400 font-medium">
+                              • Carbs: {(currentlySelectedFoodObj.c * (customAmountToAdd / currentlySelectedFoodObj.baseAmount)).toFixed(1)}g
+                            </span>
+                            <span className="text-amber-400 font-medium">
+                              • Grasas: {(currentlySelectedFoodObj.f * (customAmountToAdd / currentlySelectedFoodObj.baseAmount)).toFixed(1)}g
+                            </span>
+                          </div>
+                          {currentlySelectedFoodObj.airFryerTip && (
+                            <div className="text-[11px] text-rose-300 flex items-center gap-1.5">
+                              <ChefHat className="w-3.5 h-3.5 shrink-0 text-rose-400" />
+                              <span><strong>Tip Air Fryer:</strong> {currentlySelectedFoodObj.airFryerTip}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {plannerKeyword.trim() !== '' && (
+                        <div className="pt-3 border-t border-slate-800 space-y-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                            {filteredFoodsForSelector.map(food => (
+                              <div key={food.id} className="p-3 rounded-xl border bg-slate-900/90 border-slate-800 flex flex-col justify-between gap-2">
+                                <div>
+                                  <h4 className="text-xs font-bold text-white">{food.airFryer ? '🔥 ' : ''}{food.name}</h4>
+                                  <p className="text-[11px] text-slate-400 mt-1">{food.baseAmount} {food.unit} ({food.cal} kcal • P:{food.p}g)</p>
+                                </div>
+                                <div className="flex items-center gap-1.5 pt-1">
+                                  <button type="button" onClick={() => handleAddFoodToMeal(selectedMealToAdd, food.id, food.baseAmount)} className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] py-1.5 px-2 rounded-lg">
+                                    + Sumar
+                                  </button>
+                                  <button type="button" onClick={() => handleReplaceMainInMeal(selectedMealToAdd, food.id, food.baseAmount)} className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 font-semibold text-[11px] py-1.5 px-2.5 rounded-lg">
+                                    🔄 Reemplazar
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {matchingCompleteDishesInPlanner.length > 0 && (
+                            <div className="pt-2">
+                              <span className="block text-[11px] font-semibold text-slate-400 mb-2">
+                                🍽️ Platos completos armados que incluyen "{plannerKeyword}":
+                              </span>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                {matchingCompleteDishesInPlanner.map((dish, idx) => (
+                                  <div key={idx} className="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between gap-2">
+                                    <div className="text-xs">
+                                      <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300 mr-1.5">
+                                        {dish.mealIcon} {dish.mealLabel}
+                                      </span>
+                                      <span className="text-slate-200 font-medium">{dish.label}</span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSwapSingleMeal(dish.mealId, dish.items, dish.label)}
+                                      className="shrink-0 px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold"
+                                    >
+                                      Usar Plato
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* LAS 4 COMIDAS DIARIAS */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {MEAL_SECTIONS.map((section) => {
+                      const sectionItems = consumedTotals.enrichedItems.filter(item => item.meal === section.id);
+                      const sectionCal = consumedTotals.byMeal[section.id] || 0;
+                      const sectionP = Math.round(sectionItems.reduce((a, b) => a + b.itemP, 0));
+                      const sectionC = Math.round(sectionItems.reduce((a, b) => a + b.itemC, 0));
+                      const sectionF = Math.round(sectionItems.reduce((a, b) => a + b.itemF, 0));
+                      const swapOptions = QUICK_SWAPS_BY_MEAL[section.id] || [];
+
+                      const cardQuery = normalizeText((mealCardSearch[section.id] || '').trim());
+                      const cardMatchedFoods = cardQuery
+                        ? foodDb.filter(f => normalizeText(`${f.name} ${f.tag || ''} ${f.keywords || ''}`).includes(cardQuery)).slice(0, 5)
+                        : [];
+
+                      return (
+                        <div key={section.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                          <div>
+                            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-800">
+                              <div className="flex items-center gap-2.5">
+                                <span className="text-xl">{section.icon}</span>
+                                <div>
+                                  <h3 className="text-sm sm:text-base font-bold text-white">{section.label}</h3>
+                                  <span className="text-[11px] text-slate-400">{section.time}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-xs">
+                                <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300">P: {sectionP}g</span>
+                                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300">C: {sectionC}g</span>
+                                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300">G: {sectionF}g</span>
+                                <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 font-bold text-white">{sectionCal} kcal</span>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2 mb-3 bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/90">
+                              <div className="relative">
+                                <Search className="w-3.5 h-3.5 text-emerald-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <input
+                                  type="text"
+                                  value={mealCardSearch[section.id] || ''}
+                                  onChange={(e) => setMealCardSearch(prev => ({ ...prev, [section.id]: e.target.value }))}
+                                  placeholder={`Buscar en ${section.shortLabel} (ej: pollo, cerdo, huevo)...`}
+                                  className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-7 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none"
+                                />
+                              </div>
+
+                              {cardQuery !== '' && (
+                                <div className="bg-slate-900 border border-emerald-500/30 rounded-lg p-2 space-y-1.5">
+                                  {cardMatchedFoods.map(food => (
+                                    <div key={food.id} className="flex items-center justify-between gap-2 bg-slate-950 px-2.5 py-1.5 rounded-lg text-[11px]">
+                                      <span className="font-semibold text-white">{food.airFryer ? '🔥 ' : ''}{food.name}</span>
+                                      <div className="flex items-center gap-1 shrink-0">
+                                        <button type="button" onClick={() => { handleAddFoodToMeal(section.id, food.id, food.baseAmount); setMealCardSearch(prev => ({ ...prev, [section.id]: '' })); }} className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 font-semibold text-[10px]">+ Sumar</button>
+                                        <button type="button" onClick={() => { handleReplaceMainInMeal(section.id, food.id, food.baseAmount); setMealCardSearch(prev => ({ ...prev, [section.id]: '' })); }} className="px-2 py-1 rounded bg-blue-500/20 text-blue-300 font-semibold text-[10px]">🔄 Reemplazar</button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                                <div className="flex items-center gap-1.5 flex-1">
+                                  <Repeat className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                  <select
+                                    onChange={(e) => {
+                                      const idx = parseInt(e.target.value);
+                                      if (!isNaN(idx) && swapOptions[idx]) {
+                                        handleSwapSingleMeal(section.id, swapOptions[idx].items, swapOptions[idx].label);
+                                      }
+                                      e.target.value = "";
+                                    }}
+                                    defaultValue=""
+                                    className="w-full bg-transparent text-[11px] text-slate-300 focus:outline-none cursor-pointer"
+                                  >
+                                    <option value="" disabled className="bg-slate-900">Cambiar plato completo de {section.shortLabel}...</option>
+                                    {swapOptions.map((opt, i) => (
+                                      <option key={i} value={i} className="bg-slate-900 text-slate-200">{opt.label}</option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                <div className="flex items-center gap-1 text-[10px]">
+                                  <button onClick={() => handleScaleSingleMeal(section.id, 0.85)} className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">-15%</button>
+                                  <button onClick={() => handleScaleSingleMeal(section.id, 1.15)} className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">+15%</button>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2.5">
+                              {sectionItems.map((entry) => (
+                                <div key={entry.uid} className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                  <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="text-xs sm:text-sm font-semibold text-slate-100">{entry.food.name}</span>
+                                      {entry.food.airFryer && (
+                                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                                          🔥 {entry.food.tag}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="text-[11px] text-slate-400 flex items-center gap-3 mt-0.5">
+                                      <span className="text-blue-400">Prot: {entry.itemP}g</span>
+                                      <span className="text-emerald-400">Carbs: {entry.itemC}g</span>
+                                      <span className="text-amber-400">Grasas: {entry.itemF}g</span>
+                                    </div>
+                                    {entry.food.airFryerTip && (
+                                      <p className="text-[10px] text-rose-300/80 pt-0.5">
+                                        🔥 {entry.food.airFryerTip}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  <div className="flex items-center justify-between sm:justify-end gap-3">
+                                    <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1">
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        step={entry.food.unit.includes('g') ? "10" : "0.5"}
+                                        value={entry.amount}
+                                        onChange={(e) => handleUpdateAmount(entry.uid, e.target.value)}
+                                        className="w-14 bg-transparent text-xs font-bold text-center text-white focus:outline-none"
+                                      />
+                                      <span className="text-[10px] text-slate-400">{entry.food.unit}</span>
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-200 min-w-[60px] text-right">{entry.itemCal} kcal</span>
+                                    <button onClick={() => handleRemoveItem(entry.uid)} className="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg">
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              </>
+            )}
+
+            {/* MODAL PARA AGREGAR ALIMENTO PERSONALIZADO */}
+            {showCustomFoodModal && (
+              <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 className="text-base font-bold text-white">Crear Alimento Personalizado (Apto)</h3>
+                    <button onClick={() => setShowCustomFoodModal(false)} className="text-slate-400 hover:text-white text-sm">✕</button>
+                  </div>
+
+                  <form onSubmit={handleCreateCustomFood} className="space-y-3 text-xs">
+                    <div>
+                      <label className="block text-slate-300 mb-1">Nombre del Alimento o Corte</label>
+                      <input type="text" required placeholder="Ej: Pollo al Limón en Tiras" value={newCustomFood.name} onChange={(e) => setNewCustomFood({...newCustomFood, name: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-300 mb-1">Porción de Referencia</label>
+                        <input type="number" required value={newCustomFood.baseAmount} onChange={(e) => setNewCustomFood({...newCustomFood, baseAmount: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white" />
+                      </div>
+                      <div>
+                        <label className="block text-slate-300 mb-1">Unidad (g, ml, unid)</label>
+                        <input type="text" required value={newCustomFood.unit} onChange={(e) => setNewCustomFood({...newCustomFood, unit: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-2">
+                      <div>
+                        <label className="block text-slate-400 mb-1">Kcal</label>
+                        <input type="number" required value={newCustomFood.cal} onChange={(e) => setNewCustomFood({...newCustomFood, cal: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-white" />
+                      </div>
+                      <div>
+                        <label className="block text-blue-400 mb-1">Prot (g)</label>
+                        <input type="number" step="0.1" required value={newCustomFood.p} onChange={(e) => setNewCustomFood({...newCustomFood, p: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-white" />
+                      </div>
+                      <div>
+                        <label className="block text-emerald-400 mb-1">Carbs (g)</label>
+                        <input type="number" step="0.1" required value={newCustomFood.c} onChange={(e) => setNewCustomFood({...newCustomFood, c: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-white" />
+                      </div>
+                      <div>
+                        <label className="block text-amber-400 mb-1">Grasa (g)</label>
+                        <input type="number" step="0.1" required value={newCustomFood.f} onChange={(e) => setNewCustomFood({...newCustomFood, f: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-white" />
+                      </div>
+                    </div>
+
+                    <label className="flex items-center gap-2 pt-2 cursor-pointer text-slate-300">
+                      <input type="checkbox" checked={newCustomFood.airFryer} onChange={(e) => setNewCustomFood({...newCustomFood, airFryer: e.target.checked})} className="rounded accent-emerald-500" />
+                      <span>Ideal para cocción en Freidora de Aire (Air Fryer)</span>
+                    </label>
+
+                    <div className="flex justify-end gap-2 pt-4">
+                      <button type="button" onClick={() => setShowCustomFoodModal(false)} className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300">Cancelar</button>
+                      <button type="submit" className="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold">Guardar Alimento</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
