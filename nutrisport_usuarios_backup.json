@@ -1,0 +1,348 @@
+{
+  "users": [
+    {
+      "id": "user_alfredo",
+      "username": "Alfredo",
+      "password": "123",
+      "role": "admin",
+      "sex": "M",
+      "age": 59,
+      "weight": 88,
+      "targetWeight": 78,
+      "height": 169,
+      "deficitTarget": 500,
+      "proteinBasis": "target_weight",
+      "proteinMultiplier": 2,
+      "dayMode": "promedio",
+      "notes": "Intolerante a la lactosa y al café. 0% alcohol. Especial Air Fryer.",
+      "activities": [
+        {
+          "id": "gym",
+          "name": "Gimnasio (Fuerza / Musculación)",
+          "freqPerWeek": 2,
+          "durationMin": 60,
+          "met": 5.5,
+          "color": "text-blue-400",
+          "bg": "bg-blue-500/10",
+          "border": "border-blue-500/30",
+          "icon": "Dumbbell"
+        },
+        {
+          "id": "tenis",
+          "name": "Tenis (Partido / Peloteo Intenso)",
+          "freqPerWeek": 1.5,
+          "durationMin": 80,
+          "met": 7.3,
+          "color": "text-emerald-400",
+          "bg": "bg-emerald-500/10",
+          "border": "border-emerald-500/30",
+          "icon": "Trophy"
+        },
+        {
+          "id": "taichi",
+          "name": "Tai Chi (Práctica Marcial / Fluidez)",
+          "freqPerWeek": 1,
+          "durationMin": 60,
+          "met": 3.3,
+          "color": "text-amber-400",
+          "bg": "bg-amber-500/10",
+          "border": "border-amber-500/30",
+          "icon": "Wind"
+        },
+        {
+          "id": "ritmo",
+          "name": "Clase de Ritmo / Cardio Coreográfico",
+          "freqPerWeek": 1,
+          "durationMin": 60,
+          "met": 5.8,
+          "color": "text-purple-400",
+          "bg": "bg-purple-500/10",
+          "border": "border-purple-500/30",
+          "icon": "Music"
+        },
+        {
+          "id": "arqueria",
+          "name": "Arquería Tradicional (Postura y Tiro)",
+          "freqPerWeek": 1,
+          "durationMin": 60,
+          "met": 3.8,
+          "color": "text-rose-400",
+          "bg": "bg-rose-500/10",
+          "border": "border-rose-500/30",
+          "icon": "Target"
+        }
+      ],
+      "dailyLog": [
+        {
+          "meal": "desayuno",
+          "foodId": "mate_amargo",
+          "amount": 1,
+          "uid": "init-0-1792685331947"
+        },
+        {
+          "meal": "desayuno",
+          "foodId": "huevos_revueltos",
+          "amount": 2,
+          "uid": "init-1-1792685331947"
+        },
+        {
+          "meal": "desayuno",
+          "foodId": "pan_integral",
+          "amount": 2,
+          "uid": "init-2-1792685331947"
+        },
+        {
+          "meal": "desayuno",
+          "foodId": "palta",
+          "amount": 50,
+          "uid": "init-3-1792685331947"
+        },
+        {
+          "meal": "almuerzo",
+          "foodId": "pechuga_pollo",
+          "amount": 230,
+          "uid": "init-4-1792685331948"
+        },
+        {
+          "meal": "almuerzo",
+          "foodId": "papas_airfryer",
+          "amount": 180,
+          "uid": "init-5-1792685331948"
+        },
+        {
+          "meal": "almuerzo",
+          "foodId": "ensalada_completa",
+          "amount": 1,
+          "uid": "init-6-1792685331948"
+        },
+        {
+          "meal": "almuerzo",
+          "foodId": "aceite_oliva",
+          "amount": 1,
+          "uid": "init-7-1792685331948"
+        },
+        {
+          "meal": "merienda",
+          "foodId": "mate_amargo",
+          "amount": 1,
+          "uid": "init-8-1792685331948"
+        },
+        {
+          "meal": "merienda",
+          "foodId": "tostadas_arroz",
+          "amount": 3,
+          "uid": "init-9-1792685331948"
+        },
+        {
+          "meal": "merienda",
+          "foodId": "jamon_natural",
+          "amount": 60,
+          "uid": "init-10-1792685331948"
+        },
+        {
+          "meal": "merienda",
+          "foodId": "frutos_secos",
+          "amount": 20,
+          "uid": "init-11-1792685331948"
+        },
+        {
+          "meal": "cena",
+          "foodId": "solomillo_cerdo",
+          "amount": 220,
+          "uid": "init-12-1792685331948"
+        },
+        {
+          "meal": "cena",
+          "foodId": "vegetales_grillados",
+          "amount": 250,
+          "uid": "init-13-1792685331948"
+        },
+        {
+          "meal": "cena",
+          "foodId": "calabaza_asada",
+          "amount": 250,
+          "uid": "init-14-1792685331948"
+        },
+        {
+          "meal": "cena",
+          "foodId": "aceite_oliva",
+          "amount": 1,
+          "uid": "init-15-1792685331948"
+        }
+      ],
+      "updatedAt": "2026-10-22"
+    },
+    {
+      "id": "user_admin",
+      "username": "admin",
+      "password": "admin",
+      "role": "admin",
+      "sex": "M",
+      "age": 45,
+      "weight": 82,
+      "targetWeight": 76,
+      "height": 175,
+      "deficitTarget": 500,
+      "proteinBasis": "target_weight",
+      "proteinMultiplier": 2,
+      "dayMode": "promedio",
+      "notes": "Cuenta de Administración General del Sistema",
+      "activities": [
+        {
+          "id": "gym",
+          "name": "Gimnasio (Fuerza / Musculación)",
+          "freqPerWeek": 2,
+          "durationMin": 60,
+          "met": 5.5,
+          "color": "text-blue-400",
+          "bg": "bg-blue-500/10",
+          "border": "border-blue-500/30",
+          "icon": "Dumbbell"
+        },
+        {
+          "id": "tenis",
+          "name": "Tenis (Partido / Peloteo Intenso)",
+          "freqPerWeek": 1.5,
+          "durationMin": 80,
+          "met": 7.3,
+          "color": "text-emerald-400",
+          "bg": "bg-emerald-500/10",
+          "border": "border-emerald-500/30",
+          "icon": "Trophy"
+        },
+        {
+          "id": "taichi",
+          "name": "Tai Chi (Práctica Marcial / Fluidez)",
+          "freqPerWeek": 1,
+          "durationMin": 60,
+          "met": 3.3,
+          "color": "text-amber-400",
+          "bg": "bg-amber-500/10",
+          "border": "border-amber-500/30",
+          "icon": "Wind"
+        },
+        {
+          "id": "ritmo",
+          "name": "Clase de Ritmo / Cardio Coreográfico",
+          "freqPerWeek": 1,
+          "durationMin": 60,
+          "met": 5.8,
+          "color": "text-purple-400",
+          "bg": "bg-purple-500/10",
+          "border": "border-purple-500/30",
+          "icon": "Music"
+        },
+        {
+          "id": "arqueria",
+          "name": "Arquería Tradicional (Postura y Tiro)",
+          "freqPerWeek": 1,
+          "durationMin": 60,
+          "met": 3.8,
+          "color": "text-rose-400",
+          "bg": "bg-rose-500/10",
+          "border": "border-rose-500/30",
+          "icon": "Target"
+        }
+      ],
+      "dailyLog": [
+        {
+          "meal": "desayuno",
+          "foodId": "mate_amargo",
+          "amount": 1,
+          "uid": "init-0-1792685331922"
+        },
+        {
+          "meal": "desayuno",
+          "foodId": "huevos_revueltos",
+          "amount": 2,
+          "uid": "init-1-1792685331922"
+        },
+        {
+          "meal": "desayuno",
+          "foodId": "pan_integral",
+          "amount": 2,
+          "uid": "init-2-1792685331922"
+        },
+        {
+          "meal": "desayuno",
+          "foodId": "palta",
+          "amount": 50,
+          "uid": "init-3-1792685331922"
+        },
+        {
+          "meal": "almuerzo",
+          "foodId": "pechuga_pollo",
+          "amount": 230,
+          "uid": "init-4-1792685331922"
+        },
+        {
+          "meal": "almuerzo",
+          "foodId": "papas_airfryer",
+          "amount": 180,
+          "uid": "init-5-1792685331922"
+        },
+        {
+          "meal": "almuerzo",
+          "foodId": "ensalada_completa",
+          "amount": 1,
+          "uid": "init-6-1792685331922"
+        },
+        {
+          "meal": "almuerzo",
+          "foodId": "aceite_oliva",
+          "amount": 1,
+          "uid": "init-7-1792685331922"
+        },
+        {
+          "meal": "merienda",
+          "foodId": "mate_amargo",
+          "amount": 1,
+          "uid": "init-8-1792685331922"
+        },
+        {
+          "meal": "merienda",
+          "foodId": "tostadas_arroz",
+          "amount": 3,
+          "uid": "init-9-1792685331922"
+        },
+        {
+          "meal": "merienda",
+          "foodId": "jamon_natural",
+          "amount": 60,
+          "uid": "init-10-1792685331922"
+        },
+        {
+          "meal": "merienda",
+          "foodId": "frutos_secos",
+          "amount": 20,
+          "uid": "init-11-1792685331922"
+        },
+        {
+          "meal": "cena",
+          "foodId": "solomillo_cerdo",
+          "amount": 220,
+          "uid": "init-12-1792685331922"
+        },
+        {
+          "meal": "cena",
+          "foodId": "vegetales_grillados",
+          "amount": 250,
+          "uid": "init-13-1792685331922"
+        },
+        {
+          "meal": "cena",
+          "foodId": "calabaza_asada",
+          "amount": 250,
+          "uid": "init-14-1792685331922"
+        },
+        {
+          "meal": "cena",
+          "foodId": "aceite_oliva",
+          "amount": 1,
+          "uid": "init-15-1792685331922"
+        }
+      ],
+      "updatedAt": "2026-10-22"
+    }
+  ]
+}

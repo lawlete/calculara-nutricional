@@ -187,6 +187,30 @@
     const Download = ({ className }) => (
       <SvgIcon className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></SvgIcon>
     );
+    const Users = ({ className }) => (
+      <SvgIcon className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></SvgIcon>
+    );
+    const UserCheck = ({ className }) => (
+      <SvgIcon className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><polyline points="16 11 18 13 22 9" /></SvgIcon>
+    );
+    const UserPlus = ({ className }) => (
+      <SvgIcon className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></SvgIcon>
+    );
+    const Lock = ({ className }) => (
+      <SvgIcon className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></SvgIcon>
+    );
+    const Cloud = ({ className }) => (
+      <SvgIcon className={className}><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></SvgIcon>
+    );
+    const Save = ({ className }) => (
+      <SvgIcon className={className}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></SvgIcon>
+    );
+    const Key = ({ className }) => (
+      <SvgIcon className={className}><circle cx="7.5" cy="15.5" r="5.5" /><path d="m21 2-9.6 9.6" /><path d="m15.5 7.5 3 3L22 7l-3-3" /></SvgIcon>
+    );
+    const LogOut = ({ className }) => (
+      <SvgIcon className={className}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></SvgIcon>
+    );
 
     // ============================================================================
     // BASE DE DATOS DE ALIMENTOS (100% Sin Lactosa, Sin Café, 0% Alcohol)
@@ -484,9 +508,97 @@
       { cut: 'Mix de Zucchini, Morrón, Cebolla y Brócoli', temp: '200 °C', time: '10 - 12 min', action: 'Corte parejo para que queden dorados por fuera y al dente.' }
     ];
 
+    // ============================================================================
+    // PERFILES INICIALES MULTIUSUARIO (ALFREDO POR DEFECTO + ADMIN)
+    // ============================================================================
+    const createDefaultDailyLog = () =>
+      PRESET_MEALS.promedio.items.map((item, idx) => ({
+        ...item,
+        uid: `init-${idx}-${Date.now()}`
+      }));
+
+    const DEFAULT_USERS_LIST = [
+      {
+        id: 'user_alfredo',
+        username: 'Alfredo',
+        password: '123',
+        role: 'admin',
+        sex: 'M',
+        age: 59,
+        weight: 88,
+        targetWeight: 78,
+        height: 169,
+        deficitTarget: 500,
+        proteinBasis: 'target_weight',
+        proteinMultiplier: 2.0,
+        dayMode: 'promedio',
+        notes: 'Intolerante a la lactosa y al café. 0% alcohol. Especial Air Fryer.',
+        activities: INITIAL_ACTIVITIES,
+        dailyLog: createDefaultDailyLog(),
+        updatedAt: '2026-10-22'
+      },
+      {
+        id: 'user_admin',
+        username: 'admin',
+        password: 'admin',
+        role: 'admin',
+        sex: 'M',
+        age: 45,
+        weight: 82,
+        targetWeight: 76,
+        height: 175,
+        deficitTarget: 500,
+        proteinBasis: 'target_weight',
+        proteinMultiplier: 2.0,
+        dayMode: 'promedio',
+        notes: 'Cuenta de Administración General del Sistema',
+        activities: INITIAL_ACTIVITIES,
+        dailyLog: createDefaultDailyLog(),
+        updatedAt: '2026-10-22'
+      }
+    ];
+
     function App() {
       const [viewMode, setViewMode] = useState('combined');
       const [highlightedSection, setHighlightedSection] = useState(null);
+
+      // ============================================================================
+      // ESTADOS MULTIUSUARIO, AUTENTICACIÓN Y SINCRONIZACIÓN CLOUD (JSONBIN.IO)
+      // ============================================================================
+      const [usersList, setUsersList] = useState(DEFAULT_USERS_LIST);
+      const [currentUserId, setCurrentUserId] = useState('user_alfredo');
+      const [showAuthModal, setShowAuthModal] = useState(false);
+      const [authTab, setAuthTab] = useState('login'); // 'login' | 'register'
+
+      // Formulario de Login
+      const [loginUsername, setLoginUsername] = useState('');
+      const [loginPassword, setLoginPassword] = useState('');
+
+      // Formulario de Alta de Nuevo Usuario
+      const [regForm, setRegForm] = useState({
+        username: '',
+        password: '',
+        sex: 'M',
+        age: 40,
+        weight: 80,
+        targetWeight: 72,
+        height: 170,
+        deficitTarget: 500,
+        notes: 'Sin lactosa • Sin café • 0% Alcohol',
+        presetActivities: 'alfredo_5' // 'alfredo_5' | 'gym_cardio' | 'moderado'
+      });
+
+      // Configuración de JSONBin.io para persistencia en la nube desde GitHub Pages
+      const [jsonBinConfig, setJsonBinConfig] = useState({
+        binId: '',
+        apiKey: '',
+        autoSync: false,
+        lastSync: null
+      });
+      const [isSyncingCloud, setIsSyncingCloud] = useState(false);
+
+      // Edición de usuario desde el Panel Admin
+      const [editingAdminUser, setEditingAdminUser] = useState(null);
 
       const [flyerTheme, setFlyerTheme] = useState('emerald');
       const [flyerFormat, setFlyerFormat] = useState('story');
@@ -494,6 +606,8 @@
       const [copiedCaption, setCopiedCaption] = useState(false);
       const [isDownloadingFlyer, setIsDownloadingFlyer] = useState(false);
 
+      // ESTADOS BIOMÉTRICOS DEL USUARIO ACTIVO (Inicializados con Alfredo: 88kg, 169cm, 59 años, Varón)
+      const [sex, setSex] = useState('M');
       const [age, setAge] = useState(59);
       const [weight, setWeight] = useState(88);
       const [targetWeight, setTargetWeight] = useState(78);
@@ -507,12 +621,52 @@
 
       const [activities, setActivities] = useState(INITIAL_ACTIVITIES);
       const [foodDb, setFoodDb] = useState(INITIAL_FOOD_DB);
-      const [dailyLog, setDailyLog] = useState(() => {
-        return PRESET_MEALS.promedio.items.map((item, idx) => ({
-          ...item,
-          uid: `init-${idx}-${Date.now()}`
-        }));
-      });
+      const [dailyLog, setDailyLog] = useState(() => createDefaultDailyLog());
+
+      const currentUser = useMemo(
+        () => usersList.find(u => u.id === currentUserId) || usersList[0],
+        [usersList, currentUserId]
+      );
+
+      // Cargar datos en la calculadora cuando se cambia de usuario activo
+      const loadUserProfileIntoWorkspace = (userObj) => {
+        if (!userObj) return;
+        setSex(userObj.sex || 'M');
+        setAge(userObj.age || 59);
+        setWeight(userObj.weight || 88);
+        setTargetWeight(userObj.targetWeight || 78);
+        setHeight(userObj.height || 169);
+        setDeficitTarget(userObj.deficitTarget || 500);
+        setProteinBasis(userObj.proteinBasis || 'target_weight');
+        setProteinMultiplier(userObj.proteinMultiplier || 2.0);
+        setDayMode(userObj.dayMode || 'promedio');
+        setActivities(userObj.activities && userObj.activities.length ? userObj.activities : INITIAL_ACTIVITIES);
+        setDailyLog(userObj.dailyLog && userObj.dailyLog.length ? userObj.dailyLog : createDefaultDailyLog());
+      };
+
+      // Mantener sincronizado el perfil del usuario activo en la lista general cada vez que modifica su peso, deportes o comidas
+      useEffect(() => {
+        setUsersList(prev =>
+          prev.map(u => {
+            if (u.id !== currentUserId) return u;
+            return {
+              ...u,
+              sex,
+              age,
+              weight,
+              targetWeight,
+              height,
+              deficitTarget,
+              proteinBasis,
+              proteinMultiplier,
+              dayMode,
+              activities,
+              dailyLog,
+              updatedAt: new Date().toISOString().slice(0, 10)
+            };
+          })
+        );
+      }, [sex, age, weight, targetWeight, height, deficitTarget, proteinBasis, proteinMultiplier, dayMode, activities, dailyLog, currentUserId]);
 
       const [selectedMealToAdd, setSelectedMealToAdd] = useState('almuerzo');
       const [selectedFoodIdToAdd, setSelectedFoodIdToAdd] = useState('pechuga_pollo');
@@ -537,11 +691,235 @@
         setActionFeedback(msg);
         setTimeout(() => {
           setActionFeedback(prev => (prev === msg ? null : prev));
-        }, 3200);
+        }, 3800);
+      };
+
+      // ============================================================================
+      // FUNCIONES DE GESTIÓN DE USUARIOS, LOGIN, ALTA Y JSONBIN.IO CLOUD
+      // ============================================================================
+      const handleLoginSubmit = (e) => {
+        e.preventDefault();
+        const cleanUser = loginUsername.trim().toLowerCase();
+        const found = usersList.find(
+          u => u.username.toLowerCase() === cleanUser && u.password === loginPassword
+        );
+        if (!found) {
+          triggerFeedback('⚠️ Usuario o contraseña incorrectos. Probá con Alfredo (clave: 123) o admin (clave: admin).');
+          return;
+        }
+        setCurrentUserId(found.id);
+        loadUserProfileIntoWorkspace(found);
+        setShowAuthModal(false);
+        setLoginUsername('');
+        setLoginPassword('');
+        triggerFeedback(`👋 ¡Bienvenido ${found.username}! Se cargaron tus datos (${found.weight} kg, ${found.height} cm) y tus deportes.`);
+      };
+
+      const handleRegisterSubmit = (e) => {
+        e.preventDefault();
+        const cleanName = regForm.username.trim();
+        if (cleanName.length < 2) {
+          triggerFeedback('⚠️ Ingresá un nombre de usuario válido.');
+          return;
+        }
+        if (!regForm.password || regForm.password.length < 3) {
+          triggerFeedback('⚠️ La contraseña mínima debe tener al menos 3 caracteres.');
+          return;
+        }
+        if (usersList.some(u => u.username.toLowerCase() === cleanName.toLowerCase())) {
+          triggerFeedback('⚠️ Ese nombre de usuario ya existe. Elegí otro o iniciá sesión.');
+          return;
+        }
+
+        let initialUserActivities = INITIAL_ACTIVITIES;
+        if (regForm.presetActivities === 'gym_cardio') {
+          initialUserActivities = [
+            { id: 'gym', name: 'Gimnasio (Fuerza / Musculación)', freqPerWeek: 3.0, durationMin: 60, met: 5.5, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30', icon: 'Dumbbell' },
+            { id: 'ritmo', name: 'Cardio / Caminata Rápida / Ciclismo', freqPerWeek: 2.0, durationMin: 50, met: 5.8, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', icon: 'Activity' }
+          ];
+        } else if (regForm.presetActivities === 'moderado') {
+          initialUserActivities = [
+            { id: 'taichi', name: 'Tai Chi / Yoga / Movilidad', freqPerWeek: 2.0, durationMin: 60, met: 3.3, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', icon: 'Wind' },
+            { id: 'ritmo', name: 'Caminata Activa / Recreación', freqPerWeek: 3.0, durationMin: 45, met: 4.0, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30', icon: 'Activity' }
+          ];
+        }
+
+        const newUserObj = {
+          id: `user_${Date.now()}`,
+          username: cleanName,
+          password: regForm.password,
+          role: 'user',
+          sex: regForm.sex || 'M',
+          age: parseInt(regForm.age) || 40,
+          weight: parseFloat(regForm.weight) || 80,
+          targetWeight: parseFloat(regForm.targetWeight) || 72,
+          height: parseInt(regForm.height) || 170,
+          deficitTarget: parseInt(regForm.deficitTarget) || 500,
+          proteinBasis: 'target_weight',
+          proteinMultiplier: 2.0,
+          dayMode: 'promedio',
+          notes: regForm.notes || 'Plan personalizado',
+          activities: initialUserActivities,
+          dailyLog: createDefaultDailyLog(),
+          updatedAt: new Date().toISOString().slice(0, 10)
+        };
+
+        const updatedList = [...usersList, newUserObj];
+        setUsersList(updatedList);
+        setCurrentUserId(newUserObj.id);
+        loadUserProfileIntoWorkspace(newUserObj);
+        setShowAuthModal(false);
+        triggerFeedback(`✅ Usuario "${newUserObj.username}" dado de alta y activo (${newUserObj.weight} kg → ${newUserObj.targetWeight} kg).`);
+      };
+
+      const handleSwitchToUserByAdmin = (userObj) => {
+        setCurrentUserId(userObj.id);
+        loadUserProfileIntoWorkspace(userObj);
+        triggerFeedback(`👑 Modo Admin: Cargaste en pantalla el perfil completo de "${userObj.username}" (${userObj.weight} kg).`);
+      };
+
+      const handleDeleteUserByAdmin = (userIdToDelete) => {
+        if (userIdToDelete === 'user_alfredo') {
+          triggerFeedback('🛡️ El perfil fundador de Alfredo está protegido y no puede eliminarse.');
+          return;
+        }
+        const target = usersList.find(u => u.id === userIdToDelete);
+        setUsersList(prev => prev.filter(u => u.id !== userIdToDelete));
+        if (currentUserId === userIdToDelete) {
+          const alfredo = usersList.find(u => u.id === 'user_alfredo') || DEFAULT_USERS_LIST[0];
+          setCurrentUserId(alfredo.id);
+          loadUserProfileIntoWorkspace(alfredo);
+        }
+        triggerFeedback(`🗑️ Usuario "${target?.username || ''}" eliminado por el Administrador.`);
+      };
+
+      const handleToggleRoleByAdmin = (userIdToToggle) => {
+        if (userIdToToggle === 'user_alfredo') {
+          triggerFeedback('🛡️ Alfredo siempre mantiene permisos de Administrador Principal.');
+          return;
+        }
+        setUsersList(prev =>
+          prev.map(u =>
+            u.id === userIdToToggle
+              ? { ...u, role: u.role === 'admin' ? 'user' : 'admin' }
+              : u
+          )
+        );
+        triggerFeedback('🔑 Permisos de rol actualizados correctamente.');
+      };
+
+      const handleSaveAdminEditedUser = (e) => {
+        e.preventDefault();
+        if (!editingAdminUser) return;
+        setUsersList(prev =>
+          prev.map(u => (u.id === editingAdminUser.id ? { ...editingAdminUser, updatedAt: new Date().toISOString().slice(0, 10) } : u))
+        );
+        if (currentUserId === editingAdminUser.id) {
+          loadUserProfileIntoWorkspace(editingAdminUser);
+        }
+        setEditingAdminUser(null);
+        triggerFeedback(`✅ Datos de "${editingAdminUser.username}" actualizados por el Administrador.`);
+      };
+
+      // SINCRONIZACIÓN REAL CON JSONBIN.IO API V3
+      const handleSaveToJsonBin = async () => {
+        if (!jsonBinConfig.apiKey.trim()) {
+          triggerFeedback('⚠️ Ingresá primero tu X-Master-Key de JSONBin.io para guardar en la nube.');
+          return;
+        }
+        setIsSyncingCloud(true);
+        try {
+          const payload = {
+            app: 'NutriSport MultiUser Platform',
+            updatedAt: new Date().toISOString(),
+            users: usersList,
+            customFoods: foodDb.filter(f => String(f.id).startsWith('custom_'))
+          };
+
+          // Si ya tiene Bin ID hacemos PUT, si no tiene Bin ID creamos uno nuevo con POST
+          const hasBinId = jsonBinConfig.binId.trim().length > 5;
+          const url = hasBinId
+            ? `https://api.jsonbin.io/v3/b/${jsonBinConfig.binId.trim()}`
+            : 'https://api.jsonbin.io/v3/b';
+
+          const response = await fetch(url, {
+            method: hasBinId ? 'PUT' : 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Master-Key': jsonBinConfig.apiKey.trim(),
+              ...(hasBinId ? {} : { 'X-Bin-Name': 'NutriSport_Usuarios_DB' })
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+          const newBinId = data?.metadata?.id || jsonBinConfig.binId.trim();
+          setJsonBinConfig(prev => ({
+            ...prev,
+            binId: newBinId,
+            lastSync: new Date().toLocaleTimeString()
+          }));
+          triggerFeedback(`☁️ ¡Base de usuarios guardada en JSONBin.io! Bin ID: ${newBinId}`);
+        } catch (err) {
+          triggerFeedback('❌ Error al conectar con JSONBin.io. Verificá tu X-Master-Key y el Bin ID.');
+        } finally {
+          setIsSyncingCloud(false);
+        }
+      };
+
+      const handleLoadFromJsonBin = async () => {
+        if (!jsonBinConfig.binId.trim() || !jsonBinConfig.apiKey.trim()) {
+          triggerFeedback('⚠️ Ingresá tanto el Bin ID como tu X-Master-Key para descargar los usuarios de JSONBin.io.');
+          return;
+        }
+        setIsSyncingCloud(true);
+        try {
+          const response = await fetch(`https://api.jsonbin.io/v3/b/${jsonBinConfig.binId.trim()}/latest`, {
+            method: 'GET',
+            headers: {
+              'X-Master-Key': jsonBinConfig.apiKey.trim()
+            }
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const data = await response.json();
+          const record = data?.record;
+          if (record && Array.isArray(record.users) && record.users.length > 0) {
+            setUsersList(record.users);
+            const active = record.users.find(u => u.id === currentUserId) || record.users[0];
+            setCurrentUserId(active.id);
+            loadUserProfileIntoWorkspace(active);
+            setJsonBinConfig(prev => ({ ...prev, lastSync: new Date().toLocaleTimeString() }));
+            triggerFeedback(`☁️ ¡Sincronizados ${record.users.length} usuarios desde JSONBin.io exitosamente!`);
+          } else {
+            triggerFeedback('⚠️ El Bin no contenía una lista válida de usuarios.');
+          }
+        } catch (err) {
+          triggerFeedback('❌ No se pudo leer el Bin de JSONBin.io. Verificá el Bin ID y la Master Key.');
+        } finally {
+          setIsSyncingCloud(false);
+        }
+      };
+
+      // Exportar / Importar archivo JSON de respaldo directo
+      const handleExportUsersJsonFile = () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ users: usersList }, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `nutrisport_usuarios_backup.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        triggerFeedback('💾 Archivo JSON de usuarios descargado como respaldo.');
       };
 
       const handleJumpToSection = (sectionId, optionalAction) => {
-        if (viewMode === 'manual' || viewMode === 'flyer') {
+        if (viewMode === 'manual' || viewMode === 'flyer' || viewMode === 'users_admin') {
           setViewMode('combined');
         }
         if (optionalAction) {
@@ -608,7 +986,9 @@
       }, [plannerKeyword]);
 
       const energyMetrics = useMemo(() => {
-        const bmr = Math.round(10 * weight + 6.25 * height - 5 * age + 5);
+        // Ecuación de Mifflin-St Jeor adaptada por Sexo (Varón: +5 | Mujer: -161)
+        const sexOffset = sex === 'F' ? -161 : 5;
+        const bmr = Math.round(10 * weight + 6.25 * height - 5 * age + sexOffset);
         const neatKcal = Math.round(bmr * (neatFactor - 1));
 
         const activitiesBreakdown = activities.map(act => {
@@ -621,14 +1001,14 @@
         const avgDailySportKcal = Math.round(totalWeeklySportKcal / 7);
 
         let activeSportKcalForToday = avgDailySportKcal;
-        let activeModeLabel = 'Promedio Semanal (6.5 sesiones)';
+        let activeModeLabel = `Promedio Semanal (${activities.reduce((a, b) => a + (parseFloat(b.freqPerWeek) || 0), 0)} sesiones)`;
 
         if (dayMode === 'tenis') {
-          const tenisObj = activitiesBreakdown.find(a => a.id === 'tenis');
+          const tenisObj = activitiesBreakdown.find(a => a.id === 'tenis') || activitiesBreakdown[0];
           activeSportKcalForToday = tenisObj ? tenisObj.kcalPerSession : avgDailySportKcal;
           activeModeLabel = 'Día de Partido / Entreno de Tenis';
         } else if (dayMode === 'gym') {
-          const gymObj = activitiesBreakdown.find(a => a.id === 'gym');
+          const gymObj = activitiesBreakdown.find(a => a.id === 'gym') || activitiesBreakdown[0];
           activeSportKcalForToday = gymObj ? gymObj.kcalPerSession : avgDailySportKcal;
           activeModeLabel = 'Día de Gimnasio (Fuerza)';
         } else if (dayMode === 'taichi_ritmo_arq') {
@@ -642,17 +1022,18 @@
         }
 
         const tdee = bmr + neatKcal + activeSportKcalForToday;
-        const targetCalories = Math.max(1550, tdee - deficitTarget);
+        const minSafeCalories = sex === 'F' ? 1300 : 1550;
+        const targetCalories = Math.max(minSafeCalories, tdee - deficitTarget);
         const actualDeficit = tdee - targetCalories;
 
         const referenceWeightForProtein = proteinBasis === 'target_weight' ? targetWeight : weight;
         const targetProteinG = Math.round(referenceWeightForProtein * proteinMultiplier);
         const proteinCalories = targetProteinG * 4;
 
-        const targetFatG = Math.round(Math.max(55, (targetCalories * 0.27) / 9));
+        const targetFatG = Math.round(Math.max(50, (targetCalories * 0.27) / 9));
         const fatCalories = targetFatG * 9;
 
-        const remainingCalForCarbs = Math.max(400, targetCalories - proteinCalories - fatCalories);
+        const remainingCalForCarbs = Math.max(350, targetCalories - proteinCalories - fatCalories);
         const targetCarbsG = Math.round(remainingCalForCarbs / 4);
 
         const heightM = height / 100;
@@ -671,7 +1052,7 @@
           referenceWeightForProtein, targetProteinG, targetFatG, targetCarbsG,
           currentBmi, targetBmi, estimatedWeeklyLossKg, kgToLose, weeksToGoal
         };
-      }, [age, weight, targetWeight, height, neatFactor, deficitTarget, proteinBasis, proteinMultiplier, activities, dayMode]);
+      }, [sex, age, weight, targetWeight, height, neatFactor, deficitTarget, proteinBasis, proteinMultiplier, activities, dayMode]);
 
       const consumedTotals = useMemo(() => {
         let cal = 0, p = 0, c = 0, f = 0;
@@ -1152,31 +1533,49 @@
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                        NutriSport <span className="text-emerald-400 font-light">88kg Plan</span>
+                        NutriSport <span className="text-emerald-400 font-light">Plan</span>
                       </h1>
-                      <span className="text-xs px-2.5 py-0.5 rounded-md bg-slate-800 text-emerald-300 border border-slate-700 font-semibold">
-                        Varón • {age} años • {weight} kg • {(height / 100).toFixed(2)} m
+                      <span className="text-xs px-2.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1.5">
+                        <UserCheck className="w-3.5 h-3.5" />
+                        Usuario: {currentUser.username} {currentUser.role === 'admin' ? '(Admin)' : ''}
+                      </span>
+                      <span className="text-xs px-2.5 py-0.5 rounded-md bg-slate-800 text-slate-200 border border-slate-700 font-semibold">
+                        {sex === 'F' ? 'Mujer' : 'Varón'} • {age} años • {weight} kg • {(height / 100).toFixed(2)} m
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm text-slate-400">
-                      Déficit Calórico Inteligente, 4 Comidas Diarias y Gasto Real para tus 5 Disciplinas
+                      Plataforma Multiusuario de Déficit Calórico, 4 Comidas Air Fryer y Gasto Deportivo Real
                     </p>
                   </div>
                 </div>
 
+                {/* BOTONERA DE PERFIL ACTIVO, CAMBIO DE USUARIO Y ALTA RÁPIDA */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                    <ShieldCheck className="w-3.5 h-3.5" /> 100% Sin Lactosa
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                    🧉 Sin Café (Mate / Té)
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
-                    💧 0% Alcohol
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-rose-500/15 text-rose-300 border border-rose-500/30">
-                    <Flame className="w-3.5 h-3.5" /> Especial Air Fryer
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => { setAuthTab('login'); setShowAuthModal(true); }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 transition-all"
+                  >
+                    <Users className="w-3.5 h-3.5" /> Cambiar Usuario / Login
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setAuthTab('register'); setShowAuthModal(true); }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md transition-all"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" /> + Nuevo Usuario
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('users_admin')}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                      viewMode === 'users_admin'
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg'
+                        : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30'
+                    }`}
+                  >
+                    <Cloud className="w-3.5 h-3.5" /> 👑 Admin y Nube ({usersList.length})
+                  </button>
                 </div>
               </div>
 
@@ -1203,7 +1602,7 @@
                         : 'text-slate-300 hover:text-white hover:bg-slate-900'
                     }`}
                   >
-                    <BookOpen className="w-3.5 h-3.5" /> 📘 Manual de Uso Paso a Paso
+                    <BookOpen className="w-3.5 h-3.5" /> 📘 Manual Paso a Paso
                   </button>
                   <button
                     type="button"
@@ -1215,6 +1614,17 @@
                     }`}
                   >
                     <Layers className="w-3.5 h-3.5" /> ⚡ Vista Combinada (Guía + App)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('users_admin')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      viewMode === 'users_admin'
+                        ? 'bg-amber-500 text-slate-950 font-extrabold shadow-md'
+                        : 'text-amber-300 hover:text-white hover:bg-slate-900'
+                    }`}
+                  >
+                    <Users className="w-3.5 h-3.5" /> 👥 Gestión de Usuarios & JSONBin
                   </button>
                   <button
                     type="button"
@@ -1275,6 +1685,345 @@
           </header>
 
           <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-8">
+            {/* BANNER GLOBAL DE NOTIFICACIONES */}
+            {actionFeedback && (
+              <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-between shadow-lg">
+                <span>{actionFeedback}</span>
+                <button onClick={() => setActionFeedback(null)} className="text-emerald-300 hover:text-white">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* ============================================================================
+                👥 MÓDULO DE GESTIÓN DE USUARIOS, ADMINISTRADOR Y NUBE JSONBIN.IO
+                ============================================================================ */}
+            {viewMode === 'users_admin' && (
+              <section className="space-y-6">
+                {/* Cabecera del Panel Multiusuario */}
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-wider mb-2">
+                        <Users className="w-3.5 h-3.5" /> Centro de Usuarios & Administración
+                      </div>
+                      <h2 className="text-2xl font-extrabold text-white">
+                        Gestión de Perfiles, Contraseñas y Sincronización Cloud (JSONBin.io)
+                      </h2>
+                      <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                        El perfil de <strong className="text-emerald-300">Alfredo (88 kg, 1,69 m, 59 años, 5 deportes)</strong> está configurado por defecto como Administrador. Desde aquí podés crear nuevos usuarios, cambiar de sesión o sincronizar todos los datos en la nube con <strong>JSONBin.io</strong>.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => { setAuthTab('register'); setShowAuthModal(true); }}
+                        className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg"
+                      >
+                        <UserPlus className="w-4 h-4" /> + Dar de Alta Nuevo Usuario
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleExportUsersJsonFile}
+                        className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center gap-1.5"
+                      >
+                        <Download className="w-4 h-4 text-emerald-400" /> Descargar Backup (.JSON)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tarjeta del Usuario Actualmente Activo en la Calculadora */}
+                  <div className="bg-slate-950/90 border border-emerald-500/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 font-black text-lg">
+                        {currentUser.username.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-base font-extrabold text-white">{currentUser.username}</span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                            currentUser.role === 'admin'
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                              : 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+                          }`}>
+                            {currentUser.role === 'admin' ? '👑 Administrador' : '👤 Usuario'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          {sex === 'F' ? 'Mujer' : 'Varón'} • {age} años • Peso Actual: <strong className="text-white">{weight} kg</strong> → Meta: <strong className="text-emerald-300">{targetWeight} kg</strong> • Altura: {height} cm • Deportes: {activities.length}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setViewMode('combined')}
+                        className="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold"
+                      >
+                        Ir a su Calculadora y Menú →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* GRILLA: TABLA DE ADMINISTRACIÓN DE USUARIOS + CONECTOR JSONBIN.IO */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* LISTA DE TODOS LOS USUARIOS (PANEL ADMIN) */}
+                  <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <div>
+                        <h3 className="text-base font-bold text-white flex items-center gap-2">
+                          <ShieldCheck className="w-5 h-5 text-amber-400" />
+                          Directorio de Usuarios Registrados ({usersList.length})
+                        </h3>
+                        <p className="text-xs text-slate-400">
+                          {currentUser.role === 'admin'
+                            ? 'Como Administrador podés ver las claves, editar cualquier perfil, cambiar roles o activar su sesión.'
+                            : 'Iniciá sesión con Alfredo (clave: 123) o admin (clave: admin) para habilitar la edición administrativa total.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {usersList.map(u => {
+                        const isCurrent = u.id === currentUserId;
+                        return (
+                          <div
+                            key={u.id}
+                            className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                              isCurrent
+                                ? 'bg-emerald-950/30 border-emerald-500/50'
+                                : 'bg-slate-950/80 border-slate-800 hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-sm font-extrabold text-white">{u.username}</span>
+                                {isCurrent && (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-black">
+                                    ACTIVO AHORA
+                                  </span>
+                                )}
+                                <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
+                                  u.role === 'admin' ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-800 text-slate-300'
+                                }`}>
+                                  {u.role === 'admin' ? '👑 Admin' : 'Usuario'}
+                                </span>
+                                {currentUser.role === 'admin' && (
+                                  <span className="text-[11px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">
+                                    🔑 Pass: {u.password}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="text-xs text-slate-300 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                <span>{u.sex === 'F' ? '👩 Mujer' : '👨 Varón'}</span>
+                                <span>• {u.age} años</span>
+                                <span>• Peso: <strong>{u.weight} kg</strong> (Meta: {u.targetWeight} kg)</span>
+                                <span>• Altura: {u.height} cm</span>
+                                <span>• Déficit: -{u.deficitTarget} kcal</span>
+                              </div>
+                              {u.notes && (
+                                <p className="text-[11px] text-slate-400 italic">"{u.notes}"</p>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (currentUser.role === 'admin' || u.id === currentUserId) {
+                                    handleSwitchToUserByAdmin(u);
+                                  } else {
+                                    setLoginUsername(u.username);
+                                    setAuthTab('login');
+                                    setShowAuthModal(true);
+                                  }
+                                }}
+                                className="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold"
+                              >
+                                {isCurrent ? 'En Uso' : 'Cargar Perfil'}
+                              </button>
+
+                              {currentUser.role === 'admin' && (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingAdminUser({ ...u })}
+                                    className="px-2.5 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 text-xs font-semibold"
+                                  >
+                                    Editar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleRoleByAdmin(u.id)}
+                                    className="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-xs font-semibold"
+                                    title="Cambiar entre Admin y Usuario"
+                                  >
+                                    Rol
+                                  </button>
+                                  {u.id !== 'user_alfredo' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteUserByAdmin(u.id)}
+                                      className="p-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30"
+                                      title="Eliminar usuario"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Modal/Formulario interno de edición rápida para el Administrador */}
+                    {editingAdminUser && (
+                      <form onSubmit={handleSaveAdminEditedUser} className="bg-slate-950 border-2 border-blue-500/50 rounded-2xl p-4 space-y-3 mt-4">
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                          <h4 className="text-xs font-extrabold uppercase tracking-wider text-blue-400">
+                            ✏️ Editando Usuario (Modo Admin): {editingAdminUser.username}
+                          </h4>
+                          <button type="button" onClick={() => setEditingAdminUser(null)} className="text-slate-400 hover:text-white text-xs">
+                            Cancelar ✕
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                          <div>
+                            <label className="block text-[10px] text-slate-400 mb-1">Nombre Usuario</label>
+                            <input type="text" required value={editingAdminUser.username} onChange={e => setEditingAdminUser({ ...editingAdminUser, username: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-slate-400 mb-1">Contraseña</label>
+                            <input type="text" required value={editingAdminUser.password} onChange={e => setEditingAdminUser({ ...editingAdminUser, password: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-amber-300 font-mono" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-slate-400 mb-1">Sexo</label>
+                            <select value={editingAdminUser.sex} onChange={e => setEditingAdminUser({ ...editingAdminUser, sex: e.target.value })} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white">
+                              <option value="M">Varón</option>
+                              <option value="F">Mujer</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-slate-400 mb-1">Edad (años)</label>
+                            <input type="number" value={editingAdminUser.age} onChange={e => setEditingAdminUser({ ...editingAdminUser, age: parseInt(e.target.value) || 40 })} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-slate-400 mb-1">Peso Actual (kg)</label>
+                            <input type="number" step="0.5" value={editingAdminUser.weight} onChange={e => setEditingAdminUser({ ...editingAdminUser, weight: parseFloat(e.target.value) || 80 })} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-slate-400 mb-1">Peso Meta (kg)</label>
+                            <input type="number" step="0.5" value={editingAdminUser.targetWeight} onChange={e => setEditingAdminUser({ ...editingAdminUser, targetWeight: parseFloat(e.target.value) || 72 })} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-emerald-300 font-bold" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-slate-400 mb-1">Altura (cm)</label>
+                            <input type="number" value={editingAdminUser.height} onChange={e => setEditingAdminUser({ ...editingAdminUser, height: parseInt(e.target.value) || 170 })} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] text-slate-400 mb-1">Déficit (kcal)</label>
+                            <input type="number" step="50" value={editingAdminUser.deficitTarget} onChange={e => setEditingAdminUser({ ...editingAdminUser, deficitTarget: parseInt(e.target.value) || 500 })} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white" />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-2">
+                          <button type="submit" className="px-4 py-1.5 rounded-xl bg-blue-500 hover:bg-blue-400 text-slate-950 font-black text-xs">
+                            Guardar Cambios del Usuario
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+
+                  {/* PANEL CONECTOR CON JSONBIN.IO (GUARDADO CLOUD PARA GITHUB PAGES) */}
+                  <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Cloud className="w-5 h-5 text-cyan-400" />
+                        <h3 className="text-base font-bold text-white">Base de Datos Cloud (JSONBin.io)</h3>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-bold">
+                        API v3 Compatible
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Como <strong>GitHub Pages</strong> aloja páginas estáticas, conectar <strong>JSONBin.io</strong> te permite guardar todos los usuarios, pesos, actividades y menús en la nube de forma gratuita para abrirlos desde cualquier celular o PC:
+                    </p>
+
+                    <div className="space-y-3 text-xs bg-slate-950/90 p-4 rounded-xl border border-slate-800">
+                      <div>
+                        <label className="block text-slate-300 font-semibold mb-1">
+                          1. Tu X-Master-Key de JSONBin.io
+                        </label>
+                        <input
+                          type="password"
+                          placeholder="Ej: $2a$10$..."
+                          value={jsonBinConfig.apiKey}
+                          onChange={e => setJsonBinConfig({ ...jsonBinConfig, apiKey: e.target.value })}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-xs focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-300 font-semibold mb-1">
+                          2. Bin ID (Dejalo vacío la primera vez para crear uno automático)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Ej: 662f9a... (o vacío para crear nuevo Bin)"
+                          value={jsonBinConfig.binId}
+                          onChange={e => setJsonBinConfig({ ...jsonBinConfig, binId: e.target.value })}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-emerald-300 font-mono text-xs focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+
+                      {jsonBinConfig.lastSync && (
+                        <p className="text-[11px] text-emerald-400">
+                          ✅ Última sincronización cloud: {jsonBinConfig.lastSync}
+                        </p>
+                      )}
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={handleSaveToJsonBin}
+                          disabled={isSyncingCloud}
+                          className="py-2.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg transition-all"
+                        >
+                          <Save className="w-4 h-4" />
+                          {isSyncingCloud ? 'Sincronizando...' : '☁️ Guardar en JSONBin'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleLoadFromJsonBin}
+                          disabled={isSyncingCloud}
+                          className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 font-bold text-xs flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          <RefreshCw className="w-4 h-4" /> 📥 Cargar desde JSONBin
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5 space-y-1.5 text-[11px] text-slate-400">
+                      <strong className="text-slate-200 block">💡 ¿Cómo obtener tu clave gratis en 1 minuto?</strong>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>Entrá a <strong>jsonbin.io</strong> e iniciá sesión gratis (podés entrar con tu misma cuenta de GitHub).</li>
+                        <li>En el menú izquierdo tocá <strong>API Keys</strong> y copiá tu <strong>X-Master-Key</strong>.</li>
+                        <li>Pegala arriba y tocá <strong>"☁️ Guardar en JSONBin"</strong>: la app creará el contenedor y te mostrará tu <strong>Bin ID</strong> automáticamente.</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
             {/* MÓDULO FLYER PROMOCIONAL PARA WHATSAPP */}
             {viewMode === 'flyer' && (
               <section className="space-y-6">
@@ -1954,23 +2703,30 @@
                     <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                       <h3 className="text-base font-bold text-white flex items-center gap-2">
                         <Sliders className="w-4 h-4 text-indigo-400" />
-                        1. Datos Antropométricos y Meta
+                        1. Datos de {currentUser.username} y Meta
                       </h3>
                       <span className="text-xs text-emerald-400 font-semibold">IMC: {energyMetrics.currentBmi}</span>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                      <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                        <label className="block text-[10px] text-slate-400 mb-1">Sexo Biológico</label>
+                        <select value={sex} onChange={(e) => setSex(e.target.value)} className="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+                          <option value="M" className="bg-slate-900">Varón</option>
+                          <option value="F" className="bg-slate-900">Mujer</option>
+                        </select>
+                      </div>
                       <div className="bg-slate-950 p-2.5 rounded-xl border border-emerald-500/40">
                         <label className="block text-[10px] text-emerald-400 font-semibold mb-1">Peso Actual (kg)</label>
-                        <input type="number" min="50" max="160" step="0.5" value={weight} onChange={(e) => setWeight(parseFloat(e.target.value) || 88)} className="w-full bg-transparent text-base font-extrabold text-white focus:outline-none" />
+                        <input type="number" min="40" max="180" step="0.5" value={weight} onChange={(e) => setWeight(parseFloat(e.target.value) || 88)} className="w-full bg-transparent text-base font-extrabold text-white focus:outline-none" />
                       </div>
                       <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                         <label className="block text-[10px] text-slate-400 mb-1">Peso Meta (kg)</label>
-                        <input type="number" min="55" max="120" step="0.5" value={targetWeight} onChange={(e) => setTargetWeight(parseFloat(e.target.value) || 78)} className="w-full bg-transparent text-base font-bold text-emerald-300 focus:outline-none" />
+                        <input type="number" min="40" max="150" step="0.5" value={targetWeight} onChange={(e) => setTargetWeight(parseFloat(e.target.value) || 78)} className="w-full bg-transparent text-base font-bold text-emerald-300 focus:outline-none" />
                       </div>
                       <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                         <label className="block text-[10px] text-slate-400 mb-1">Altura (cm)</label>
-                        <input type="number" min="140" max="220" value={height} onChange={(e) => setHeight(parseInt(e.target.value) || 169)} className="w-full bg-transparent text-base font-bold text-white focus:outline-none" />
+                        <input type="number" min="130" max="225" value={height} onChange={(e) => setHeight(parseInt(e.target.value) || 169)} className="w-full bg-transparent text-base font-bold text-white focus:outline-none" />
                       </div>
                       <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                         <label className="block text-[10px] text-slate-400 mb-1">Edad (años)</label>
@@ -2487,6 +3243,239 @@
                       <button type="submit" className="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold">Guardar Alimento</button>
                     </div>
                   </form>
+                </div>
+              </div>
+            )}
+
+            {/* ============================================================================
+                🔐 MODAL DE LOGIN Y ALTA DE NUEVO USUARIO (CON CONTRASEÑA MÍNIMA)
+                ============================================================================ */}
+            {showAuthModal && (
+              <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-5 h-5 text-emerald-400" />
+                      <h3 className="text-base font-bold text-white">
+                        Acceso de Usuarios y Alta de Perfiles
+                      </h3>
+                    </div>
+                    <button onClick={() => setShowAuthModal(false)} className="text-slate-400 hover:text-white text-sm">
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Pestañas Login / Nuevo Usuario */}
+                  <div className="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800 text-xs font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setAuthTab('login')}
+                      className={`py-2 rounded-lg transition-all ${
+                        authTab === 'login' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      🔑 Iniciar Sesión
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAuthTab('register')}
+                      className={`py-2 rounded-lg transition-all ${
+                        authTab === 'register' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      ➕ Alta de Nuevo Usuario
+                    </button>
+                  </div>
+
+                  {authTab === 'login' ? (
+                    <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
+                      <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-3 text-slate-300 space-y-1">
+                        <span className="text-[11px] text-emerald-400 font-bold block">Cuentas preconfiguradas listas para usar:</span>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => { setLoginUsername('Alfredo'); setLoginPassword('123'); }}
+                            className="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-emerald-500/30 text-emerald-300 font-semibold"
+                          >
+                            👤 Alfredo (Clave: 123)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setLoginUsername('admin'); setLoginPassword('admin'); }}
+                            className="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 font-semibold"
+                          >
+                            👑 admin (Clave: admin)
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-300 font-semibold mb-1">Nombre de Usuario</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ej: Alfredo"
+                          value={loginUsername}
+                          onChange={e => setLoginUsername(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-300 font-semibold mb-1">Contraseña</label>
+                        <input
+                          type="password"
+                          required
+                          placeholder="Ingresá tu clave"
+                          value={loginPassword}
+                          onChange={e => setLoginPassword(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white"
+                        />
+                      </div>
+
+                      <div className="flex justify-end gap-2 pt-2">
+                        <button type="button" onClick={() => setShowAuthModal(false)} className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300">
+                          Cancelar
+                        </button>
+                        <button type="submit" className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black">
+                          Ingresar a mi Perfil
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleRegisterSubmit} className="space-y-3 text-xs">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-slate-300 font-semibold mb-1">Nombre de Usuario *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Ej: Mariana"
+                            value={regForm.username}
+                            onChange={e => setRegForm({ ...regForm, username: e.target.value })}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-amber-300 font-semibold mb-1">Contraseña Mínima (3+ car.) *</label>
+                          <input
+                            type="password"
+                            required
+                            minLength={3}
+                            placeholder="Ej: 1234"
+                            value={regForm.password}
+                            onChange={e => setRegForm({ ...regForm, password: e.target.value })}
+                            className="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-3 py-2 text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2.5">
+                        <div>
+                          <label className="block text-slate-400 mb-1">Sexo Biológico</label>
+                          <select
+                            value={regForm.sex}
+                            onChange={e => setRegForm({ ...regForm, sex: e.target.value })}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold"
+                          >
+                            <option value="M">Varón</option>
+                            <option value="F">Mujer</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-slate-400 mb-1">Edad (años)</label>
+                          <input
+                            type="number"
+                            required
+                            min="15" max="95"
+                            value={regForm.age}
+                            onChange={e => setRegForm({ ...regForm, age: e.target.value })}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-400 mb-1">Altura (cm)</label>
+                          <input
+                            type="number"
+                            required
+                            min="130" max="225"
+                            value={regForm.height}
+                            onChange={e => setRegForm({ ...regForm, height: e.target.value })}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2.5">
+                        <div>
+                          <label className="block text-emerald-400 font-semibold mb-1">Peso Actual (kg)</label>
+                          <input
+                            type="number"
+                            step="0.5"
+                            required
+                            value={regForm.weight}
+                            onChange={e => setRegForm({ ...regForm, weight: e.target.value })}
+                            className="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-white font-bold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-300 mb-1">Peso Meta (kg)</label>
+                          <input
+                            type="number"
+                            step="0.5"
+                            required
+                            value={regForm.targetWeight}
+                            onChange={e => setRegForm({ ...regForm, targetWeight: e.target.value })}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-emerald-300 font-bold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-300 mb-1">Déficit Diario</label>
+                          <select
+                            value={regForm.deficitTarget}
+                            onChange={e => setRegForm({ ...regForm, deficitTarget: parseInt(e.target.value) })}
+                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-white"
+                          >
+                            <option value={350}>Leve (-350)</option>
+                            <option value={500}>Moderado (-500)</option>
+                            <option value={650}>Intenso (-650)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-300 mb-1">Plantilla Inicial de Actividades Deportivas</label>
+                        <select
+                          value={regForm.presetActivities}
+                          onChange={e => setRegForm({ ...regForm, presetActivities: e.target.value })}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                        >
+                          <option value="alfredo_5">5 Disciplinas (Gym, Tenis, Tai Chi, Ritmo, Arquería)</option>
+                          <option value="gym_cardio">Gimnasio (3x/sem) + Cardio (2x/sem)</option>
+                          <option value="moderado">Actividad Moderada / Caminata + Movilidad</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-400 mb-1">Preferencias / Restricciones</label>
+                        <input
+                          type="text"
+                          value={regForm.notes}
+                          onChange={e => setRegForm({ ...regForm, notes: e.target.value })}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200"
+                        />
+                      </div>
+
+                      <div className="flex justify-end gap-2 pt-3">
+                        <button type="button" onClick={() => setShowAuthModal(false)} className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300">
+                          Cancelar
+                        </button>
+                        <button type="submit" className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black">
+                          Crear Usuario y Cargar Plan
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </div>
               </div>
             )}
